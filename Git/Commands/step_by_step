@@ -1,0 +1,260 @@
+Git Zero to Hero Guide
+
+A practical, step-by-step Git guide with commonly used commands and one-line explanations.
+
+------------------------------------------------------------------
+
+1. Setup Git
+
+git --version
+Check installed Git version.
+
+git config --global user.name "Your Name"
+git config --global user.email "you@example.com"
+Set your identity for commits.
+
+git config --list
+View all Git configuration.
+
+git config --global init.defaultBranch main
+Set default branch name.
+
+------------------------------------------------------------------
+
+2. Initialize Repository
+
+mkdir my-project
+cd my-project
+Create and enter project directory.
+
+git init
+Initialize a new Git repository.
+
+git status
+Check current repo status.
+
+------------------------------------------------------------------
+
+3. Add and Commit Files
+
+touch README.md
+Create a new file.
+
+git add README.md
+Stage a specific file.
+
+git add .
+Stage all changes.
+
+git commit -m "Initial commit"
+Save staged changes with a message.
+
+git log --oneline
+View compact commit history.
+
+------------------------------------------------------------------
+
+4. Ignore Files
+
+touch .gitignore
+Create ignore file.
+
+Example:
+node_modules/
+.env
+*.log
+dist/
+
+git add .gitignore
+git commit -m "Add gitignore"
+Track ignore rules.
+
+------------------------------------------------------------------
+
+5. Daily Workflow
+
+git status
+Check modified files.
+
+git diff
+See changes before staging.
+
+git add .
+Stage all updates.
+
+git commit -m "Update code"
+Commit changes.
+
+------------------------------------------------------------------
+
+6. Branching
+
+git branch
+List branches.
+
+git checkout -b feature-branch
+Create and switch to new branch.
+
+git switch main
+Switch to main branch.
+
+git merge feature-branch
+Merge branch into current branch.
+
+git branch -d feature-branch
+Delete merged branch.
+
+------------------------------------------------------------------
+
+7. Remote Repository
+
+git remote -v
+View remote repositories.
+
+git remote add origin https://github.com/user/repo.git
+Add remote repository.
+
+git push -u origin main
+Push code and set upstream.
+
+git push
+Push changes.
+
+git pull
+Pull latest changes.
+
+git fetch
+Download changes without merging.
+
+------------------------------------------------------------------
+
+8. Clone Repository
+
+git clone https://github.com/user/repo.git
+Copy remote repository locally.
+
+------------------------------------------------------------------
+
+9. Undo Changes
+
+git restore filename
+Discard changes in file.
+
+git restore --staged filename
+Unstage a file.
+
+git commit --amend
+Modify last commit.
+
+git reset --soft HEAD~1
+Undo commit but keep changes.
+
+git reset --hard HEAD~1
+Remove commit and changes completely.
+
+git revert <commit_id>
+Safely undo a commit.
+
+git reflog
+View history of HEAD for recovery.
+
+------------------------------------------------------------------
+
+10. Stashing
+
+git stash
+Save work temporarily.
+
+git stash list
+List saved stashes.
+
+git stash pop
+Apply and remove stash.
+
+------------------------------------------------------------------
+
+11. Tags
+
+git tag v1.0.0
+Create version tag.
+
+git push --tags
+Push all tags.
+
+------------------------------------------------------------------
+
+12. File Operations
+
+git mv old.txt new.txt
+Rename file.
+
+git rm file.txt
+Delete file from repo.
+
+git rm --cached file.txt
+Remove file from Git but keep locally.
+
+------------------------------------------------------------------
+
+13. SSH Setup
+
+ssh-keygen -t ed25519 -C "you@example.com"
+Generate SSH key.
+
+ssh-add ~/.ssh/id_ed25519
+Add key to SSH agent.
+
+ssh -T git@github.com
+Test SSH connection.
+
+------------------------------------------------------------------
+
+14. Complete Workflow Example
+
+git clone <repo_url>
+cd repo
+git checkout main
+git pull origin main
+git checkout -b feature-new
+git add .
+git commit -m "Add new feature"
+git push -u origin feature-new
+
+Feature development flow.
+
+git checkout main
+git pull origin main
+git merge feature-new
+git push origin main
+git branch -d feature-new
+
+Merge and cleanup flow.
+
+------------------------------------------------------------------
+
+15. Most Used Commands
+
+git init              - Initialize repo
+git clone <url>       - Clone repo
+git status            - Check status
+git add .             - Stage changes
+git commit -m ""      - Commit changes
+git push              - Push code
+git pull              - Pull updates
+git branch            - List branches
+git checkout -b name  - Create branch
+git merge name        - Merge branch
+git diff              - Show changes
+git stash             - Save temp work
+git revert <id>       - Undo commit safely
+
+------------------------------------------------------------------
+
+Best Practices
+
+- Use meaningful commit messages
+- Always pull before starting work
+- Work on branches (not main)
+- Commit small logical changes
+- Use revert instead of reset on shared branches
+
