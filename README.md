@@ -16,4 +16,5 @@ Started again with a fresh idea and  fresh details.
 
 3] Git
 	- You are already using it.
-   
+   	- Useful commands, git clone, git status, git add, git commit, git log, git diff, git push, git pull
+	- Check Errors for errors that you will get
