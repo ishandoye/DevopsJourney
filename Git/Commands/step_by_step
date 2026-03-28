@@ -13,6 +13,10 @@ git config --global user.name "Your Name"
 git config --global user.email "you@example.com"
 Set your identity for commits.
 
+TO change the remote to use ssh Instead of https (Check Errors folder for the issue that was encountered initally)
+-> git remote set-url origin git@github.com:ishandoye/DevopsJourney.git  
+
+
 git config --list
 View all Git configuration.
 
