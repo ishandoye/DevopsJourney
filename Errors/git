@@ -1,6 +1,6 @@
-1] While doing  the commit - You can consider it as errors or warning
+1] While doing  the commit, You can consider it as an error or a warning
 
-	# git commit -m "README.md file updated with first interaction"
+	# git commit -m "README.md file updated with first interaction."
 	Author identity unknown
 	
 	*** Please tell me who you are.
@@ -38,7 +38,7 @@
 			1] Check what remote you currently have
 				# git remote -v
 			
-			2] If it is https, it is self explonatory.
+			2] If it is https, it is self-explanatory.
 			3] Change it to SSH 
 				# git remote set-url origin git@github.com:<yourUsername>/DevopsJourney.git
 			
