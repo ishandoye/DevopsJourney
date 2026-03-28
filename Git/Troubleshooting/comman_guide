@@ -1,0 +1,701 @@
+# Git Clone Troubleshooting Flowchart
+
+A real-world troubleshooting flowchart for `git clone` failures, with commands to debug each issue.
+
+---
+
+## 1. Quick Triage Commands
+
+Run these first before deeper troubleshooting:
+
+```bash
+git --version
+git config --list --show-origin
+git remote -v
+env | grep -i proxy
+ping github.com
+nslookup github.com
+curl -I https://github.com
+ssh -T git@github.com
+df -h
+pwd
+ls -la
+```
+
+What these check:
+- `git --version` -> verifies Git is installed and not too old
+- `git config --list --show-origin` -> shows Git config and where it comes from
+- `git remote -v` -> confirms remote URLs
+- `env | grep -i proxy` -> checks proxy variables
+- `ping github.com` -> basic network reachability
+- `nslookup github.com` -> DNS resolution
+- `curl -I https://github.com` -> HTTPS connectivity
+- `ssh -T git@github.com` -> SSH authentication
+- `df -h` -> disk space
+- `pwd` and `ls -la` -> local path and permission sanity check
+
+---
+
+## 2. Main Troubleshooting Flowchart
+
+```mermaid
+flowchart TD
+    A[Start: git clone fails] --> B[Check exact error message]
+    B --> C{Is the URL correct?}
+    C -- No --> C1[Get correct repo URL from GitHub/GitLab/Bitbucket and retry]
+    C -- Yes --> D{Can DNS resolve host?}
+    D -- No --> D1[Run nslookup github.com / cat /etc/resolv.conf / fix DNS]
+    D -- Yes --> E{Can network reach host?}
+    E -- No --> E1[Run ping github.com / curl -I https://github.com / check firewall VPN proxy]
+    E -- Yes --> F{Using HTTPS or SSH?}
+
+    F -- HTTPS --> G{Authentication failed?}
+    G -- Yes --> G1[Use Personal Access Token instead of password]
+    G -- No --> H{SSL or proxy error?}
+    H -- Yes --> H1[Check CA certs, proxy config, curl, git config]
+    H -- No --> I{Repo not found?}
+    I -- Yes --> I1[Verify repo path and access permissions]
+    I -- No --> J{Large repo / EOF / index-pack / slow network?}
+    J -- Yes --> J1[Try shallow clone, re-run on stable network, check disk]
+    J -- No --> K[Check local path permissions and existing directory]
+
+    F -- SSH --> L{SSH auth works?}
+    L -- No --> L1[Run ssh -T git@github.com]
+    L1 --> L2{Permission denied publickey?}
+    L2 -- Yes --> L3[Generate key, add key, load key in agent, retry]
+    L2 -- No --> L4{Host key verification failed?}
+    L4 -- Yes --> L5[Remove stale known_hosts entry and reconnect]
+    L4 -- No --> L6{Port 22 blocked / timeout?}
+    L6 -- Yes --> L7[Use HTTPS or SSH over port 443]
+    L6 -- No --> L8[Check repo permission and SSH config]
+    L -- Yes --> M{Repo accessible?}
+    M -- No --> M1[Check repo access rights and remote URL]
+    M -- Yes --> J
+
+    K --> N{Destination directory exists?}
+    N -- Yes --> N1[Remove folder or clone into another directory]
+    N -- No --> O{Permission denied on filesystem?}
+    O -- Yes --> O1[Fix folder ownership or clone elsewhere]
+    O -- No --> P{Disk full?}
+    P -- Yes --> P1[Free space and retry]
+    P -- No --> Q{Still failing?}
+    Q -- Yes --> Q1[Run verbose debug: GIT_TRACE=1 GIT_CURL_VERBOSE=1 git clone ...]
+    Q1 --> Q2[Review output for DNS auth SSL proxy or pack issues]
+    Q -- No --> R[Clone successful]
+```
+
+---
+
+## 3. Step-by-Step Troubleshooting Tree With Commands
+
+### Step 1: Verify the repository URL
+
+Common error:
+```bash
+fatal: repository 'https://github.com/user/repo.git/' not found
+```
+
+Debug:
+```bash
+git clone https://github.com/user/repo.git
+```
+
+Checks:
+- Is the owner name correct?
+- Is the repo name correct?
+- Is the repo private?
+- Are you logged in with the correct account?
+
+Fix:
+- Copy the clone URL directly from the repository page
+- For private repos, ensure your account has access
+
+---
+
+### Step 2: Check DNS resolution
+
+Common error:
+```bash
+fatal: unable to access 'https://github.com/...': Could not resolve host
+```
+
+Debug:
+```bash
+nslookup github.com
+getent hosts github.com
+cat /etc/resolv.conf
+```
+
+What it means:
+- Your system cannot resolve the domain name into an IP
+
+Fix:
+- Check internet connection
+- Use working DNS servers
+- Restart networking if needed
+- Fix `/etc/resolv.conf` if broken
+
+---
+
+### Step 3: Check basic internet and HTTPS reachability
+
+Common errors:
+```bash
+Failed to connect to github.com port 443
+Connection timed out
+```
+
+Debug:
+```bash
+ping github.com
+curl -I https://github.com
+traceroute github.com
+```
+
+What it means:
+- Network path is blocked or unstable
+- Firewall, VPN, or proxy may be interfering
+
+Fix:
+- Try another network
+- Disable broken VPN/proxy
+- Check firewall rules
+- If on corporate network, ask whether GitHub is blocked
+
+---
+
+### Step 4: Determine whether you are using HTTPS or SSH
+
+Check URL format:
+```bash
+# HTTPS
+https://github.com/user/repo.git
+
+# SSH
+git@github.com:user/repo.git
+```
+
+Why this matters:
+- HTTPS errors are usually token/proxy/SSL related
+- SSH errors are usually key/agent/port/access related
+
+---
+
+## 4. HTTPS Clone Troubleshooting
+
+### 4.1 Authentication failed
+
+Common error:
+```bash
+fatal: Authentication failed for 'https://github.com/...'
+```
+
+Debug:
+```bash
+git config --global --get credential.helper
+```
+
+What it means:
+- Password authentication is not accepted
+- Token is wrong, expired, or missing
+
+Fix:
+- Use a Personal Access Token instead of password
+- Clear cached bad credentials and re-authenticate
+
+Useful commands:
+```bash
+git credential reject
+printf "protocol=https\nhost=github.com\n" | git credential reject
+```
+
+Retry:
+```bash
+git clone https://github.com/user/repo.git
+```
+
+---
+
+### 4.2 SSL certificate problem
+
+Common error:
+```bash
+SSL certificate problem: unable to get local issuer certificate
+```
+
+Debug:
+```bash
+curl -Iv https://github.com
+git config --global --get http.sslVerify
+```
+
+Fix:
+```bash
+sudo yum install ca-certificates -y
+sudo update-ca-trust
+```
+
+Temporary test only:
+```bash
+git -c http.sslVerify=false clone https://github.com/user/repo.git
+```
+
+Do not disable SSL permanently unless you fully understand the risk.
+
+---
+
+### 4.3 Proxy problems
+
+Common errors:
+```bash
+Proxy CONNECT aborted
+Received HTTP code 407 from proxy after CONNECT
+```
+
+Debug:
+```bash
+env | grep -i proxy
+git config --global --get http.proxy
+git config --global --get https.proxy
+```
+
+Remove wrong proxy:
+```bash
+git config --global --unset http.proxy
+git config --global --unset https.proxy
+unset http_proxy
+unset https_proxy
+unset HTTP_PROXY
+unset HTTPS_PROXY
+```
+
+Set correct proxy if needed:
+```bash
+git config --global http.proxy http://user:pass@proxy:port
+git config --global https.proxy http://user:pass@proxy:port
+```
+
+---
+
+## 5. SSH Clone Troubleshooting
+
+### 5.1 Permission denied (publickey)
+
+Common error:
+```bash
+Permission denied (publickey).
+fatal: Could not read from remote repository.
+```
+
+Debug:
+```bash
+ssh -T git@github.com
+ssh-add -l
+ls -la ~/.ssh
+```
+
+Generate key:
+```bash
+ssh-keygen -t ed25519 -C "you@example.com"
+```
+
+Start agent and add key:
+```bash
+eval "$(ssh-agent -s)"
+ssh-add ~/.ssh/id_ed25519
+```
+
+Show public key:
+```bash
+cat ~/.ssh/id_ed25519.pub
+```
+
+Fix:
+- Add the public key to your Git hosting account
+- Ensure the correct account is used
+
+Retry:
+```bash
+ssh -T git@github.com
+git clone git@github.com:user/repo.git
+```
+
+---
+
+### 5.2 Host key verification failed
+
+Common error:
+```bash
+Host key verification failed.
+```
+
+Debug and fix:
+```bash
+ssh-keygen -R github.com
+ssh -T git@github.com
+```
+
+What it means:
+- Stored host fingerprint does not match current server key
+- Often caused by stale `known_hosts` entry
+
+---
+
+### 5.3 SSH timeout / port 22 blocked
+
+Common error:
+```bash
+ssh: connect to host github.com port 22: Connection timed out
+```
+
+Debug:
+```bash
+nc -vz github.com 22
+ssh -vT git@github.com
+```
+
+Fix option 1: Use HTTPS
+```bash
+git clone https://github.com/user/repo.git
+```
+
+Fix option 2: Use SSH over port 443
+
+Create or update `~/.ssh/config`:
+```sshconfig
+Host github.com
+  Hostname ssh.github.com
+  Port 443
+  User git
+```
+
+Test:
+```bash
+ssh -T git@github.com
+```
+
+---
+
+## 6. Repository Access and Permission Issues
+
+### 6.1 Repository not found
+
+Common reasons:
+- Repo name is wrong
+- Repo is private
+- You do not have permission
+- Wrong organization account
+
+Debug:
+```bash
+git ls-remote https://github.com/user/repo.git
+git ls-remote git@github.com:user/repo.git
+```
+
+What it means:
+- If `ls-remote` fails, your URL or access is wrong
+
+Fix:
+- Verify repo path
+- Confirm access with owner
+- Use the correct GitHub account or SSH key
+
+---
+
+### 6.2 SSO / organization restrictions
+
+Possible symptoms:
+- Access denied despite valid credentials
+- Repo visible in browser but clone fails
+
+Fix:
+- Authorize your token or SSH key for the organization
+- Ensure SSO is enabled for your account if required
+
+---
+
+## 7. Local Machine and Filesystem Issues
+
+### 7.1 Destination path already exists
+
+Common error:
+```bash
+fatal: destination path 'repo' already exists and is not an empty directory.
+```
+
+Fix:
+```bash
+rm -rf repo
+git clone <repo_url>
+```
+
+Or:
+```bash
+git clone <repo_url> new-folder
+```
+
+---
+
+### 7.2 Permission denied creating working tree
+
+Common error:
+```bash
+fatal: could not create work tree dir 'repo': Permission denied
+```
+
+Debug:
+```bash
+pwd
+ls -ld .
+touch testfile
+```
+
+Fix:
+```bash
+sudo chown -R $USER:$USER /path/to/parent
+```
+
+Or clone into a writable directory:
+```bash
+cd ~
+git clone <repo_url>
+```
+
+---
+
+### 7.3 Disk full
+
+Common error:
+```bash
+No space left on device
+```
+
+Debug:
+```bash
+df -h
+du -sh .
+```
+
+Fix:
+- Free disk space
+- Remove old files
+- Clone into a larger filesystem
+
+---
+
+## 8. Large Repo / Pack / Transfer Issues
+
+### 8.1 early EOF / index-pack failed / RPC failed
+
+Common errors:
+```bash
+fatal: early EOF
+fatal: index-pack failed
+error: RPC failed
+```
+
+Debug:
+```bash
+GIT_TRACE=1 GIT_CURL_VERBOSE=1 git clone <repo_url>
+```
+
+Fixes:
+```bash
+git clone --depth 1 <repo_url>
+git config --global core.compression 0
+```
+
+Sometimes also helpful:
+```bash
+git config --global http.version HTTP/1.1
+```
+
+What it means:
+- Connection unstable
+- Proxy breaks large transfers
+- Repo is large and clone is timing out
+
+---
+
+### 8.2 Slow clone or hanging clone
+
+Debug:
+```bash
+GIT_TRACE=1 git clone <repo_url>
+top
+iostat
+```
+
+Fix:
+- Check CPU, RAM, disk I/O
+- Try shallow clone
+- Try off VPN
+- Try on stable internet
+
+---
+
+## 9. Git Installation / Version / Config Issues
+
+### 9.1 Git too old
+
+Debug:
+```bash
+git --version
+```
+
+Fix on RHEL-like systems:
+```bash
+sudo yum update git -y
+```
+
+Why it matters:
+- Older Git may have TLS or HTTP issues with modern servers
+
+---
+
+### 9.2 Broken Git config
+
+Debug:
+```bash
+git config --list --show-origin
+```
+
+Look for:
+- wrong proxy
+- wrong sslVerify
+- broken credential helper
+- bad url rewrite
+
+Common cleanup:
+```bash
+git config --global --unset http.proxy
+git config --global --unset https.proxy
+git config --global --unset http.sslVerify
+git config --global --unset credential.helper
+```
+
+---
+
+## 10. Debug Commands for Deep Inspection
+
+### Enable verbose Git tracing
+
+For HTTPS:
+```bash
+GIT_TRACE=1 GIT_CURL_VERBOSE=1 git clone https://github.com/user/repo.git
+```
+
+For SSH:
+```bash
+GIT_SSH_COMMAND="ssh -vvv" git clone git@github.com:user/repo.git
+```
+
+These show:
+- DNS lookup path
+- proxy use
+- TLS handshake
+- SSH key negotiation
+- remote server responses
+
+---
+
+## 11. Full End-to-End Debug Sequence
+
+Use this in order when `git clone` fails:
+
+```bash
+git --version
+git config --list --show-origin
+env | grep -i proxy
+nslookup github.com
+ping github.com
+curl -I https://github.com
+ssh -T git@github.com
+df -h
+pwd
+ls -la
+GIT_TRACE=1 GIT_CURL_VERBOSE=1 git clone https://github.com/user/repo.git
+```
+
+If using SSH:
+```bash
+GIT_SSH_COMMAND="ssh -vvv" git clone git@github.com:user/repo.git
+```
+
+---
+
+## 12. Quick Error-to-Fix Map
+
+### Error: `repository not found`
+- Check repo URL
+- Check private repo access
+- Run `git ls-remote <repo_url>`
+
+### Error: `Permission denied (publickey)`
+- Generate SSH key
+- Load it into agent
+- Add public key to Git provider
+- Test `ssh -T git@github.com`
+
+### Error: `Authentication failed`
+- Use token instead of password
+- Clear bad cached credentials
+
+### Error: `Could not resolve host`
+- Check DNS with `nslookup`
+- Fix `/etc/resolv.conf`
+
+### Error: `Connection timed out`
+- Check firewall/VPN/proxy
+- Use HTTPS or SSH over 443
+
+### Error: `Host key verification failed`
+- Run `ssh-keygen -R github.com`
+
+### Error: `SSL certificate problem`
+- Install/update CA certificates
+- Check proxy SSL interception
+
+### Error: `Proxy CONNECT aborted`
+- Remove wrong proxy config
+- Set correct proxy if needed
+
+### Error: `destination path already exists`
+- Remove folder or use a different target folder
+
+### Error: `No space left on device`
+- Free disk space
+
+### Error: `early EOF` / `index-pack failed`
+- Use stable network
+- Try shallow clone
+- enable trace logs
+
+---
+
+## 13. Best Practices
+
+- Prefer SSH for regular development if your network allows it
+- Use HTTPS when SSH port 22 is blocked
+- Keep Git updated
+- Keep CA certificates updated
+- Do not disable SSL permanently
+- Use shallow clone for very large repositories when full history is not needed
+- Test authentication before cloning
+- Always copy the clone URL from the repository page
+
+---
+
+## 14. Golden Path
+
+When in doubt, follow this order:
+
+1. Check the clone URL
+2. Check DNS
+3. Check internet reachability
+4. Check whether you are using HTTPS or SSH
+5. Check authentication
+6. Check repo access permissions
+7. Check local filesystem permissions and disk
+8. Run verbose trace commands
+9. Retry with HTTPS or SSH-over-443 if blocked
