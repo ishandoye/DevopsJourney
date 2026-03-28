@@ -5,7 +5,8 @@ Before moving ahead why rebase is useful than merge
 -> Rebase will show logs in a linear fashion, but merge will not be linear.
 -> If you use merge it will show at the front  that is above all  so even if the rebase was done previous to merge it will still shows below merge. 
 -> So Merge is not shows the logs in a tracking way so developer can not properly read the merge log.
-> 
+
+So if you worried about the log in a linear way you need to use rebase if not and want to merge all and no worry about the logs then go for merge as we can check the time as well as at what time the merge or rebase was done.
 
 
 
