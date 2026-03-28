@@ -1,5 +1,22 @@
 Git Cherry-Pick vs Git Merge vs Git Rebase
-Deep-Dive Reference Guide
+
+
+Before moving ahead why rebase is useful than merge 
+-> Rebase will show logs in a linear fashion, but merge will not be linear.
+-> If you use merge it will show at the front  that is above all  so even if the rebase was done previous to merge it will still shows below merge. 
+-> So Merge is not shows the logs in a tracking way so developer can not properly read the merge log.
+> 
+
+
+
+
+
+
+
+
+
+
+
 
 This document explains the difference between `git cherry-pick`, `git merge`, and `git rebase` in depth:
 what they do, why they exist, when to use them, how they affect history, their risks, and their most useful commands.
