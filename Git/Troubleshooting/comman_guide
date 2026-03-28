@@ -37,52 +37,138 @@ What these check:
 ---
 
 ## 2. Main Troubleshooting Flowchart
+Git Clone Troubleshooting Flow (Text Version)
 
-```mermaid
-flowchart TD
-    A[Start: git clone fails] --> B[Check exact error message]
-    B --> C{Is the URL correct?}
-    C -- No --> C1[Get correct repo URL from GitHub/GitLab/Bitbucket and retry]
-    C -- Yes --> D{Can DNS resolve host?}
-    D -- No --> D1[Run nslookup github.com / cat /etc/resolv.conf / fix DNS]
-    D -- Yes --> E{Can network reach host?}
-    E -- No --> E1[Run ping github.com / curl -I https://github.com / check firewall VPN proxy]
-    E -- Yes --> F{Using HTTPS or SSH?}
+START
+  |
+  v
+[ git clone fails ]
+  |
+  v
+[ Check exact error message ]
+  |
+  v
+[ Is the URL correct? ]
+  |--- NO ---> [ Fix repo URL (copy from GitHub/GitLab) ] ---> RETRY
+  |
+  |--- YES
+          |
+          v
+   [ Can DNS resolve host? ]
+          |--- NO ---> [ Run: nslookup github.com / check /etc/resolv.conf ] ---> FIX DNS ---> RETRY
+          |
+          |--- YES
+                  |
+                  v
+         [ Can network reach host? ]
+                  |--- NO ---> [ Run: ping github.com / curl -I https://github.com ]
+                  |             [ Check firewall / VPN / proxy ]
+                  |             ---> FIX NETWORK ---> RETRY
+                  |
+                  |--- YES
+                          |
+                          v
+                 [ Using HTTPS or SSH? ]
+                   |                     |
+                   |                     |
+                   v                     v
 
-    F -- HTTPS --> G{Authentication failed?}
-    G -- Yes --> G1[Use Personal Access Token instead of password]
-    G -- No --> H{SSL or proxy error?}
-    H -- Yes --> H1[Check CA certs, proxy config, curl, git config]
-    H -- No --> I{Repo not found?}
-    I -- Yes --> I1[Verify repo path and access permissions]
-    I -- No --> J{Large repo / EOF / index-pack / slow network?}
-    J -- Yes --> J1[Try shallow clone, re-run on stable network, check disk]
-    J -- No --> K[Check local path permissions and existing directory]
+==================== HTTPS PATH ====================
 
-    F -- SSH --> L{SSH auth works?}
-    L -- No --> L1[Run ssh -T git@github.com]
-    L1 --> L2{Permission denied publickey?}
-    L2 -- Yes --> L3[Generate key, add key, load key in agent, retry]
-    L2 -- No --> L4{Host key verification failed?}
-    L4 -- Yes --> L5[Remove stale known_hosts entry and reconnect]
-    L4 -- No --> L6{Port 22 blocked / timeout?}
-    L6 -- Yes --> L7[Use HTTPS or SSH over port 443]
-    L6 -- No --> L8[Check repo permission and SSH config]
-    L -- Yes --> M{Repo accessible?}
-    M -- No --> M1[Check repo access rights and remote URL]
-    M -- Yes --> J
+[ Authentication failed? ]
+  |--- YES ---> [ Use Personal Access Token instead of password ] ---> RETRY
+  |
+  |--- NO
+          |
+          v
+[ SSL or proxy error? ]
+  |--- YES ---> [ Check CA certs / proxy config ]
+  |             [ Run: curl -Iv https://github.com ]
+  |             ---> FIX ---> RETRY
+  |
+  |--- NO
+          |
+          v
+[ Repo not found? ]
+  |--- YES ---> [ Verify repo path + permissions ] ---> RETRY
+  |
+  |--- NO
+          |
+          v
+[ Large repo / EOF / index-pack error? ]
+  |--- YES ---> [ Try: git clone --depth 1 ]
+  |             [ Check network stability / disk ]
+  |             ---> RETRY
+  |
+  |--- NO ---> Continue to local checks
 
-    K --> N{Destination directory exists?}
-    N -- Yes --> N1[Remove folder or clone into another directory]
-    N -- No --> O{Permission denied on filesystem?}
-    O -- Yes --> O1[Fix folder ownership or clone elsewhere]
-    O -- No --> P{Disk full?}
-    P -- Yes --> P1[Free space and retry]
-    P -- No --> Q{Still failing?}
-    Q -- Yes --> Q1[Run verbose debug: GIT_TRACE=1 GIT_CURL_VERBOSE=1 git clone ...]
-    Q1 --> Q2[Review output for DNS auth SSL proxy or pack issues]
-    Q -- No --> R[Clone successful]
-```
+==================== SSH PATH ====================
+
+[ SSH working? ]
+  |--- NO ---> [ Run: ssh -T git@github.com ]
+                |
+                v
+        [ Permission denied (publickey)? ]
+                |--- YES ---> [ Generate key + add to GitHub ]
+                |             [ ssh-add ~/.ssh/id_ed25519 ]
+                |             ---> RETRY
+                |
+                |--- NO
+                        |
+                        v
+                [ Host key verification failed? ]
+                        |--- YES ---> [ ssh-keygen -R github.com ] ---> RETRY
+                        |
+                        |--- NO
+                                |
+                                v
+                        [ Port 22 blocked? ]
+                                |--- YES ---> [ Use HTTPS or SSH over port 443 ] ---> RETRY
+                                |
+                                |--- NO ---> [ Check SSH config + permissions ]
+
+  |
+  |--- YES
+          |
+          v
+  [ Repo accessible? ]
+          |--- NO ---> [ Check repo access rights ] ---> RETRY
+          |
+          |--- YES ---> Continue to local checks
+
+==================== LOCAL CHECKS ====================
+
+[ Destination directory exists? ]
+  |--- YES ---> [ Remove folder OR clone into new directory ] ---> RETRY
+  |
+  |--- NO
+          |
+          v
+[ Permission denied on filesystem? ]
+  |--- YES ---> [ Fix ownership: chown -R user:user dir ] ---> RETRY
+  |
+  |--- NO
+          |
+          v
+[ Disk full? ]
+  |--- YES ---> [ Run: df -h → free space ] ---> RETRY
+  |
+  |--- NO
+          |
+          v
+[ Still failing? ]
+  |
+  v
+[ Run debug mode ]
+  |
+  v
+[ GIT_TRACE=1 GIT_CURL_VERBOSE=1 git clone <repo> ]
+  |
+  v
+[ Check output for: DNS / Auth / SSL / Proxy / Pack errors ]
+  |
+  v
+[SUCCESS]
 
 ---
 
