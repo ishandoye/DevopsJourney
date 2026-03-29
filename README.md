@@ -9,7 +9,10 @@ https://docs.github.com/en/get-started/writing-on-github/working-with-advanced-f
 1] Use AWS CLI 
 	- Install AWS CLI
 		-> https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html
-	- Run `aws configure` to access your aws account using your user.
+	- Run the command below to access your AWS account using your user.
+	``` 
+	aws configure
+	```
 	- Do not use the root user instead, use a normal user with root privileges and create an access key. Save it for future use, but make sure to keep it private.
 	- Use that access key in aws configure command with your suitable region and the format like json.
 
