@@ -1,0 +1,3 @@
+- [Git Docs](https://git-scm.com/docs)
+- [Atlassian](https://www.atlassian.com/git/glossary)
+- [CheatSheet](https://education.github.com/git-cheat-sheet-education.pdf)
