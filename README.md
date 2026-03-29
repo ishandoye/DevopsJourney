@@ -5,7 +5,6 @@ Help yourself with Git Hub Docks.
 
 https://docs.github.com/en/get-started/writing-on-github/working-with-advanced-formatting/organizing-information-with-tables
 
-
 1] Use AWS CLI 
 	- Install AWS CLI
 		-> https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html
