@@ -1,6 +1,6 @@
 # Git Clone Troubleshooting Flowchart
 
-A real-world troubleshooting flowchart for `git clone` failures, with commands to debug each issue.
+- A real-world troubleshooting flowchart for `git clone` failures, with commands to debug each issue.
 
 ---
 
@@ -22,22 +22,25 @@ pwd
 ls -la
 ```
 
-What these check:
-- `git --version` -> verifies Git is installed and not too old
-- `git config --list --show-origin` -> shows Git config and where it comes from
-- `git remote -v` -> confirms remote URLs
-- `env | grep -i proxy` -> checks proxy variables
-- `ping github.com` -> basic network reachability
-- `nslookup github.com` -> DNS resolution
-- `curl -I https://github.com` -> HTTPS connectivity
-- `ssh -T git@github.com` -> SSH authentication
-- `df -h` -> disk space
-- `pwd` and `ls -la` -> local path and permission sanity check
+***What these check:***
+```bash
+- git --version						-> verifies Git is installed and not too old
+- git config --list --show-origin	-> shows Git config and where it comes from
+- git remote -v						-> confirms remote URLs
+- env | grep -i proxy				-> checks proxy variables
+- ping github.com					-> basic network reachability
+- nslookup github.com				-> DNS resolution
+- curl -I https://github.com		-> HTTPS connectivity
+- ssh -T git@github.com				-> SSH authentication
+- df -h								-> disk space
+- pwd and ls -la					-> local path and permission sanity check
 
+```
 ---
 
 ## 2. Main Troubleshooting Flowchart
 Git Clone Troubleshooting Flow (Text Version)
+```bash
 
 START
   |
@@ -54,7 +57,7 @@ START
   |--- YES
           |
           v
-   [ Can DNS resolve host? ]
+   [ Can DNS resolve the host? ]
           |--- NO ---> [ Run: nslookup github.com / check /etc/resolv.conf ] ---> FIX DNS ---> RETRY
           |
           |--- YES
@@ -170,6 +173,7 @@ START
   v
 [SUCCESS]
 
+```
 ---
 
 ## 3. Step-by-Step Troubleshooting Tree With Commands
