@@ -59,4 +59,4 @@ or an SSH URL like
 	- Create a new token classic.
 	- add expiration and then uise repo for full control.
 	- Generate and copy the token.
-	- Use that token while logging in as described [here](https://github.com/ishandoye/DevopsJourney/edit/main/Git/Errors/git#2-issue-while-doing-a-git-push-even-though-your-key-has-been-added-to-github).
+	- Use that token while logging in as described [here](https://github.com/ishandoye/DevopsJourney/blob/main/Git/Errors/git.md#2-issue-while-doing-a-git-push-even-though-your-key-has-been-added-to-github).
