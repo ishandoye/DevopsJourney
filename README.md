@@ -1,8 +1,7 @@
 # DevopsJourney
 Started again with a fresh idea and  fresh details. 
 
-Help yourself with Git Hub Docks.
-https://docs.github.com/en/get-started/writing-on-github/working-with-advanced-formatting/organizing-information-with-tables
+## [Help yourself with GitHub Docs.](https://docs.github.com/en/get-started/writing-on-github/working-with-advanced-formatting)
 
 <details>
 <summary> Use AWS CLI </summary>
