@@ -1,101 +1,90 @@
-Git Cherry-Pick vs Git Merge vs Git Rebase
+# Git Cherry-Pick vs Git Merge vs Git Rebase
 
 
-Before moving ahead why rebase is useful than merge 
--> Rebase will show logs in a linear fashion, but merge will not be linear.
--> If you use merge it will show at the front  that is above all  so even if the rebase was done previous to merge it will still shows below merge. 
--> So Merge is not shows the logs in a tracking way so developer can not properly read the merge log.
+## Before moving ahead, however, we have a better view of each.
 
-So if you worried about the log in a linear way you need to use rebase if not and want to merge all and no worry about the logs then go for merge as we can check the time as well as at what time the merge or rebase was done.
+- Rebase rewrites commit history to create a linear sequence of commits, making the project history cleaner and easier to follow.
+- Merge combines branches by creating a merge commit, which preserves the original branching structure and results in a non-linear (graph-based) history.
+### When using merge:
+- The full development history is preserved
+- It shows how branches diverged and were later combined
+- The commit graph can become more complex to read
+### When using rebase:
+- The history appears as if all changes were made sequentially
+- It simplifies logs and makes them easier to read
+- However, it rewrites history and should be used carefully, especially on shared branches
+### Recommendation:
+- Use rebase when you want a clean, linear commit history (e.g., before merging feature branches)
+- Use merge when you want to preserve the exact history of how changes were developed
 
 
+**This document explains the difference between `git cherry-pick`, `git merge`, and `git rebase` in depth:
+what they do, why they exist, when to use them, how they affect history, their risks, and their most useful commands.**
 
-
-
-
-
-
-
-
-
-
-This document explains the difference between `git cherry-pick`, `git merge`, and `git rebase` in depth:
-what they do, why they exist, when to use them, how they affect history, their risks, and their most useful commands.
-
-======================================================================
-1. High-Level Difference
-======================================================================
+## 1. High-Level Difference
 
 All three commands move changes between branches, but they do it differently.
-
-1) git merge
+- **git merge**
    - Combines the history of one branch into another branch.
    - Usually preserves the original branch structure.
    - May create a merge commit.
 
-2) git rebase
+- **git rebase**
    - Reapplies commits from one branch on top of another base.
    - Rewrites commit history.
    - Produces a cleaner, more linear history.
 
-3) git cherry-pick
+- **git cherry-pick**
    - Copies one or more specific commits from one branch to another.
    - Does not bring the whole branch.
    - Useful when you want only selected changes.
 
-Simple memory trick:
+### Simple memory trick:
 - Merge = combine branches
-- Rebase = rewrite branch on top of another base
+- Rebase = rewrite a branch on top of another base
 - Cherry-pick = copy selected commits
 
-======================================================================
-2. git merge
-======================================================================
+## 2. git merge
 
-What it does:
+- What it does:
 `git merge` integrates the changes from one branch into the current branch.
 
 Example:
+<pre>
     git checkout main
-    git merge feature-login
+    git merge feature-login </pre>
 
 Meaning:
 - switch to `main`
 - bring all commits from `feature-login` into `main`
 
-----------------------------------------------------------------------
-2.1 Why git merge exists
-----------------------------------------------------------------------
+### 2.1 Why git merge exists
 
 Git merge exists because branch-based development is the normal way teams work.
 Developers create feature branches, bugfix branches, release branches, and hotfix branches.
 At some point, those branches must be combined. `git merge` is the standard and safest way to do that.
 
 It is useful because:
-- it preserves the relationship between branches
-- it is easy to understand
-- it does not rewrite existing public history
-- it is a safe default in collaborative environments
+- It preserves the relationship between branches
+- It is easy to understand
+- It does not rewrite existing public history
+- It is a safe default in collaborative environments
 
-----------------------------------------------------------------------
-2.2 When to use git merge
-----------------------------------------------------------------------
+### 2.2 When to use git merge
 
 Use `git merge` when:
-- a feature branch is complete and ready to be integrated
-- you want to preserve branch history
-- you are working on a shared branch or team branch
-- your team uses pull requests and branch merge workflows
-- you want a non-destructive and collaboration-friendly integration method
+- A feature branch is complete and ready to be integrated
+- You want to preserve branch history
+- You are working on a shared branch or team branch
+- Your team uses pull requests and branch merge workflows
+- You want a non-destructive and collaboration-friendly integration method
 
 Common use cases:
 - merge a completed feature branch into `main`
 - merge a bugfix branch into `develop`
 - merge a release branch back into `main`
 
-----------------------------------------------------------------------
-2.3 How git merge affects history
-----------------------------------------------------------------------
+### 2.3 How git merge affects history
 
 Suppose history looks like this:
 
@@ -103,101 +92,96 @@ Suppose history looks like this:
                      \
     feature:          D---E
 
-After running:
+***After running:***
+<pre>
     git checkout main
-    git merge feature
+    git merge feature</pre>
 
-History may become:
+***History may become:***
 
     A---B---C-------M
              \     /
               D---E
 
-Where:
+***Where:***
 - `M` is a merge commit
-- Git records that two histories were combined
+- Git records that the two histories were combined
 
-This is useful because it preserves full context:
-- the feature branch existed
-- it had commits D and E
-- those commits were merged into main at commit M
+***This is useful because it preserves full context:***
+- The feature branch existed
+- It had commits D and E
+- Those commits were merged into main at commit M
 
-----------------------------------------------------------------------
-2.4 Fast-forward merge
-----------------------------------------------------------------------
+### 2.4 Fast-forward merge
 
 If the current branch has not moved since the feature branch split, Git may do a fast-forward merge.
 
 Example:
 
-Before:
+***Before:***
     A---B---C
              \
               D---E
 
 If `main` is still at C and all new work is on the feature branch, then:
-
+<pre>
     git checkout main
-    git merge feature
+    git merge feature</pre>
 
-Result:
+***Result:***
     A---B---C---D---E
 
-No merge commit is created.
-Git simply moves the branch pointer forward.
+- No merge commit is created.
+- Git simply moves the branch pointer forward.
 
-Why this happens:
-- there is no divergent history
-- the target branch can just "fast-forward" to the feature branch tip
+Why does this happen?
+- There is no divergent history
+- The target branch can just "fast-forward" to the feature branch tip
 
-----------------------------------------------------------------------
-2.5 No-fast-forward merge
-----------------------------------------------------------------------
+### 2.5 No-fast-forward merge
 
 If you want to always preserve the fact that a branch was merged, use:
 
-    git merge --no-ff feature
+<pre> git merge --no-ff feature</pre>
 
 This forces a merge commit even if fast-forward is possible.
 
-Why use it:
-- makes feature merges visible in history
-- easier to understand which commits came from which feature
-- common in teams that want explicit merge records
+***Why use it:***
+- Makes feature merges visible in history
+- Easier to understand which commits came from which feature
+- Common in teams that want explicit merge records
 
-----------------------------------------------------------------------
-2.6 Merge conflicts
-----------------------------------------------------------------------
+### 2.6 Merge conflicts
 
 A merge conflict happens when Git cannot automatically combine the changes.
 
-Usually this happens when:
-- the same lines were changed differently in both branches
-- one branch deleted a file that another branch modified
+***Usually this happens when:***
+- The same lines were changed differently in both branches
+- One branch deleted a file that another branch modified
 - both branches renamed or moved files in incompatible ways
 
 Typical flow:
+<pre>
     git checkout main
-    git merge feature-branch
+    git merge feature-branch</pre>
 
 If conflicts happen:
-    git status
+<pre> git status </pre>
 
-Then:
+***Then:***
 - open conflicted files
 - resolve the conflict markers
 - stage resolved files
 
 Commands:
+<pre>
     git add .
-    git commit
+    git commit</pre>
 
 Abort a merge if needed:
-    git merge --abort
+<pre> git merge --abort </pre>
 
-----------------------------------------------------------------------
-2.7 Pros of git merge
-----------------------------------------------------------------------
+### 2.7 Pros of git merge
 
 - safe for shared history
 - preserves full branch structure
@@ -206,50 +190,43 @@ Abort a merge if needed:
 - standard in PR-based workflows
 - does not rewrite old commits
 
-----------------------------------------------------------------------
-2.8 Cons of git merge
-----------------------------------------------------------------------
+### 2.8 Cons of git merge
 
 - can create many merge commits
-- history can become visually messy
+- History can become visually messy
 - log output can be harder to read in very active repos
 
-----------------------------------------------------------------------
-2.9 Most useful merge commands
-----------------------------------------------------------------------
+### 2.9 Most useful merge commands
 
 Merge a branch into the current branch:
-    git merge branch-name
+<pre> git merge branch-name </pre>
 
 Always create a merge commit:
-    git merge --no-ff branch-name
+<pre> git merge --no-ff branch-name </pre>
 
 Abort current merge:
-    git merge --abort
+<pre> git merge --abort </pre>
 
 Visualize history:
-    git log --oneline --graph --all
+<pre> git log --oneline --graph --all </pre>
 
-======================================================================
-3. git rebase
-======================================================================
+## 3. git rebase
 
 What it does:
 `git rebase` takes commits from your current branch and reapplies them on top of another branch.
 
 Example:
+<pre>
     git checkout feature-login
-    git rebase main
+    git rebase main </pre>
 
 Meaning:
-- take the commits from `feature-login`
-- replay them on top of the latest `main`
+- Take the commits from `feature-login`
+- Replay them on top of the latest `main`
 
-----------------------------------------------------------------------
-3.1 Why git rebase exists
-----------------------------------------------------------------------
+### 3.1 Why git rebase exists
 
-Git rebase exists to keep history clean and linear.
+**Git rebase exists to keep history clean and linear.**
 
 Instead of showing that branches diverged and merged later, rebase lets Git present the branch
 as though your work started from the latest version of the target branch.
