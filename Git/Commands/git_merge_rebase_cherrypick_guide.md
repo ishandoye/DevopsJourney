@@ -17,6 +17,8 @@
 - Use rebase when you want a clean, linear commit history (e.g., before merging feature branches)
 - Use merge when you want to preserve the exact history of how changes were developed
 
+----------------------------------------------------------------------
+----------------------------------------------------------------------
 
 **This document explains the difference between `git cherry-pick`, `git merge`, and `git rebase` in depth:
 what they do, why they exist, when to use them, how they affect history, their risks, and their most useful commands.**
@@ -43,6 +45,8 @@ All three commands move changes between branches, but they do it differently.
 - Merge = combine branches
 - Rebase = rewrite a branch on top of another base
 - Cherry-pick = copy selected commits
+
+----------------------------------------------------------------------
 
 ## 2. git merge
 
@@ -119,6 +123,7 @@ If the current branch has not moved since the feature branch split, Git may do a
 Example:
 
 ***Before:***
+
     A---B---C
              \
               D---E
@@ -129,6 +134,7 @@ If `main` is still at C and all new work is on the feature branch, then:
     git merge feature</pre>
 
 ***Result:***
+
     A---B---C---D---E
 
 - No merge commit is created.
@@ -191,7 +197,6 @@ Abort a merge if needed:
 - does not rewrite old commits
 
 ### 2.8 Cons of git merge
-
 - can create many merge commits
 - History can become visually messy
 - log output can be harder to read in very active repos
@@ -209,6 +214,8 @@ Abort current merge:
 
 Visualize history:
 <pre> git log --oneline --graph --all </pre>
+
+----------------------------------------------------------------------
 
 ## 3. git rebase
 
@@ -231,31 +238,27 @@ Meaning:
 Instead of showing that branches diverged and merged later, rebase lets Git present the branch
 as though your work started from the latest version of the target branch.
 
-This is useful because:
-- commit history becomes easier to read
-- feature branches can be updated with latest changes from main
+***This is useful because:***
+- Commit history becomes easier to read
+- Feature branches can be updated with the latest changes from main
 - commit cleanup becomes easier before merging
-- many teams prefer a linear history for simpler debugging and logging
+- Many teams prefer a linear history for simpler debugging and logging
 
-----------------------------------------------------------------------
-3.2 When to use git rebase
-----------------------------------------------------------------------
+### 3.2 When to use git rebase
 
-Use `git rebase` when:
-- your feature branch is behind `main`
-- you want to update your branch before opening a PR
-- you want a cleaner, linear history
-- you want to squash, reorder, or reword commits
-- the commits are local or private and not yet shared broadly
+***Use `git rebase` when:***
+- Your feature branch is behind `main`
+- You want to update your branch before opening a PR
+- You want a cleaner, linear history
+- You want to squash, reorder, or reword commits
+- The commits are local or private and not yet shared broadly
 
-Common use cases:
-- refresh a feature branch on top of latest `main`
-- clean up commit history before merge
-- reduce unnecessary merge commits in local development
+***Common use cases:***
+- Refresh a feature branch on top of the latest `main`
+- Clean up commit history before merge
+- Reduce unnecessary merge commits in local development
 
-----------------------------------------------------------------------
-3.3 How git rebase affects history
-----------------------------------------------------------------------
+### 3.3 How git rebase affects history
 
 Suppose history looks like this:
 
@@ -264,77 +267,77 @@ Suppose history looks like this:
     feature:          D---E
 
 Run:
+<pre>
     git checkout feature
-    git rebase main
+    git rebase main</pre>
 
 After rebase:
+
     main:      A---B---C---F
                               \
     feature:                   D'---E'
 
-Important:
+***Important:***
 - D' and E' are not literally the old commits
 - Git creates new commits with new IDs
-- the old commits D and E are replaced by rewritten versions
+- The old commits D and E are replaced by rewritten versions
 
 This is why rebase is called history rewriting.
 
-----------------------------------------------------------------------
-3.4 Why rebase makes history cleaner
-----------------------------------------------------------------------
+### 3.4 Why rebase makes history cleaner
 
 With merge, you may get:
+
     A---B---C---F---M
              \     /
               D---E
 
 With rebase, you get:
+
     A---B---C---F---D'---E'
 
-The second form is simpler to read because:
-- there is a straight line of commits
-- no merge commit is needed
+***The second form is simpler to read because:***
+- There is a straight line of commits
+- No merge commit is needed
 - `git log` becomes easier to follow
 
 This is the main reason developers like rebase.
 
-----------------------------------------------------------------------
-3.5 Rebase conflicts
-----------------------------------------------------------------------
+### 3.5 Rebase conflicts
 
 A rebase conflict happens while Git is replaying each commit.
 
 Flow:
+<pre>
     git checkout feature
-    git rebase main
+    git rebase main </pre>
 
 If conflict happens:
-    git status
+<pre> git status </pre>
 
 Resolve the files, then:
+<pre>
     git add .
-    git rebase --continue
+    git rebase --continue</pre>
 
 Abort if needed:
-    git rebase --abort
+<pre>    git rebase --abort </pre>
 
 Skip the problematic commit if appropriate:
-    git rebase --skip
+<pre>    git rebase --skip </pre>
 
-Why rebase conflicts can feel harder:
+***Why rebase conflicts can feel harder:***
 - Git may stop on multiple commits one by one
 - you may need to resolve conflicts multiple times during the replay
 
-----------------------------------------------------------------------
-3.6 Interactive rebase
-----------------------------------------------------------------------
+### 3.6 Interactive rebase
 
 Interactive rebase is one of the most powerful Git features.
 
 Command:
-    git rebase -i HEAD~5
+<pre>    git rebase -i HEAD~5 </pre>
 
-This opens an editor with the last 5 commits and lets you:
+***This opens an editor with the last 5 commits and lets you:***
 - pick: keep commit as-is
 - reword: change commit message
 - edit: stop to change commit contents
@@ -342,62 +345,56 @@ This opens an editor with the last 5 commits and lets you:
 - fixup: combine without keeping the message
 - drop: remove commit
 
-Why use interactive rebase:
+***Why use interactive rebase:***
 - clean up messy local commits
 - combine "WIP" commits into a single logical commit
 - reorder commits into a better sequence
 - remove accidental or unnecessary commits
 
 Example:
-Before cleanup:
+***Before cleanup:***
     commit 1 - create API
     commit 2 - typo fix
     commit 3 - debug print
     commit 4 - final API cleanup
 
-After interactive rebase:
+***After interactive rebase:***
     commit 1 - create API with final cleanup
 
 This is common before pushing or opening a PR.
 
-----------------------------------------------------------------------
-3.7 Dangerous side of rebase
-----------------------------------------------------------------------
+### 3.7 Dangerous side of rebase
 
 Rebase rewrites commit history, so it can be dangerous on shared branches.
 
-Do not casually rebase:
+***Do not casually rebase:***
 - `main`
 - `develop`
 - any branch others are already using
 
-Why:
-- commit hashes change
-- teammates may already have the old history
-- they may get duplicate commits, conflicts, or broken branch relationships
+***Why:***
+- Commit hashes change
+- Teammates may already have the old history
+- They may get duplicate commits, conflicts, or broken branch relationships
 
-Safe rule:
-- rebase your own local feature branch
-- do not rebase shared or public history unless the team intentionally uses that workflow
+***Safe rule:***
+- Rebase your own local feature branch
+- Do not rebase shared or public history unless the team intentionally uses that workflow
 
-----------------------------------------------------------------------
-3.8 Pull with rebase
-----------------------------------------------------------------------
+### 3.8 Pull with rebase
 
 Useful command:
-    git pull --rebase
+<pre> git pull --rebase </pre>
+                        
+***What it does:***
+- Fetches remote changes
+- Reapplies your local commits on top of the updated remote branch
 
-What it does:
-- fetches remote changes
-- reapplies your local commits on top of the updated remote branch
+***Why teams use it:***
+- Avoids unnecessary merge commits during `git pull`
+- Keeps local branch history cleaner
 
-Why teams use it:
-- avoids unnecessary merge commits during `git pull`
-- keeps local branch history cleaner
-
-----------------------------------------------------------------------
-3.9 Pros of git rebase
-----------------------------------------------------------------------
+### 3.9 Pros of git rebase
 
 - creates a clean linear history
 - useful for updating feature branches
@@ -405,87 +402,78 @@ Why teams use it:
 - makes logs easier to read
 - avoids many unnecessary merge commits
 
-----------------------------------------------------------------------
-3.10 Cons of git rebase
-----------------------------------------------------------------------
+### 3.10 Cons of git rebase
 
 - rewrites history
 - unsafe on shared branches if not coordinated
 - conflicts may need repeated resolution
 - can confuse beginners if used carelessly
 
-----------------------------------------------------------------------
-3.11 Most useful rebase commands
-----------------------------------------------------------------------
+### 3.11 Most useful rebase commands
 
 Rebase current branch onto main:
-    git rebase main
+<pre> git rebase main </pre>
 
 Continue after conflict resolution:
-    git rebase --continue
+<pre> git rebase --continue </pre>
 
 Abort the rebase:
-    git rebase --abort
+<pre> git rebase --abort </pre>
 
 Skip current commit during rebase:
-    git rebase --skip
+<pre> git rebase --skip </pre>
 
 Interactive rebase:
-    git rebase -i HEAD~5
+<pre> git rebase -i HEAD~5 </pre>
 
 Pull with rebase:
-    git pull --rebase
+<pre> git pull --rebase </pre>
 
-======================================================================
-4. git cherry-pick
-======================================================================
+----------------------------------------------------------------------
 
-What it does:
+## 4. git cherry-pick
+
+***What it does:***
 `git cherry-pick` copies one or more specific commits and applies them to the current branch.
 
 Example:
+<pre>
     git checkout main
-    git cherry-pick abc1234
+    git cherry-pick abc1234 </pre>
 
 Meaning:
 - take commit `abc1234`
 - apply its change on `main`
 - create a new commit on `main` with that change
 
-----------------------------------------------------------------------
-4.1 Why git cherry-pick exists
-----------------------------------------------------------------------
+### 4.1 Why git cherry-pick exists
 
 Sometimes you do not want an entire branch.
 You only want one small change from another branch.
 
 That is exactly why `git cherry-pick` exists.
 
-It is useful because:
-- you can take one bugfix without taking unrelated commits
-- you can move a commit that was made on the wrong branch
-- you can backport a critical fix to an older release branch
-- you can selectively reuse work
+***It is useful because:***
+- You can take one bugfix without taking unrelated commits
+- You can move a commit that was made on the wrong branch
+- You can backport a critical fix to an older release branch
+- You can selectively reuse work
 
-----------------------------------------------------------------------
-4.2 When to use git cherry-pick
-----------------------------------------------------------------------
+### 4.2 When to use git cherry-pick
 
-Use `git cherry-pick` when:
-- you need only one or two commits, not the whole branch
-- a hotfix must go to production immediately
-- you need to backport a fix to a release branch
+***Use `git cherry-pick` when:***
+- You need only one or two commits, not the whole branch
+- A hotfix must go to production immediately
+- You need to backport a fix to a release branch
 - someone committed to the wrong branch
-- you need selected commits from another feature branch
+- You need selected commits from another feature branch
 
-Common use cases:
+***Common use cases:***
 - pick one production bugfix from `develop` into `main`
 - take one config fix from a feature branch
 - move a wrongly placed commit into the correct branch
 
-----------------------------------------------------------------------
-4.3 How cherry-pick affects history
-----------------------------------------------------------------------
+### 4.3 How cherry-pick affects history
 
 Suppose this history exists:
 
@@ -493,63 +481,59 @@ Suppose this history exists:
     feature:           D---E---F
 
 If only commit E is needed in main:
-
+<pre>
     git checkout main
-    git cherry-pick <commit-E>
+    git cherry-pick <commit-E> </pre>
 
 Result:
+
     main:      A---B---C---E'
     feature:           D---E---F
 
-Important:
+***Important:***
 - E' is a new commit, not the exact same original commit
 - Git copies the changes, not the original position in branch history
 
 This means cherry-pick duplicates work in history, which is why it should be used carefully.
 
-----------------------------------------------------------------------
-4.4 Cherry-pick conflicts
-----------------------------------------------------------------------
+### 4.4 Cherry-pick conflicts
 
 Cherry-pick can also create conflicts if the chosen commit depends on surrounding code that is different on the target branch.
 
 Flow:
-    git cherry-pick <commit-id>
+<pre> git cherry-pick <commit-id> </pre>
 
 If conflict occurs:
-    git status
+<pre> git status </pre>
 
 Resolve files, then:
+<pre>
     git add .
-    git cherry-pick --continue
+    git cherry-pick --continue </pre>
 
 Abort:
-    git cherry-pick --abort
+<pre> git cherry-pick --abort </pre>
 
-Why this happens:
-- the selected commit may assume other commits already exist
-- the target branch may have changed the same lines differently
+***Why this happens:*** 
+- The selected commit may assume other commits already exist
+- The target branch may have changed the same lines differently
 
-----------------------------------------------------------------------
-4.5 Cherry-picking multiple commits
-----------------------------------------------------------------------
+### 4.5 Cherry-picking multiple commits
 
 Cherry-pick one commit:
-    git cherry-pick <commit-id>
+<pre> git cherry-pick <commit-id> </pre>
 
 Cherry-pick multiple commits:
-    git cherry-pick <commit1> <commit2>
+<pre> git cherry-pick <commit1> <commit2> </pre>
 
 Cherry-pick a range:
-    git cherry-pick <start>^..<end>
+<pre> git cherry-pick <start>^..<end> </pre>
 
 Useful when:
-- several related fixes need to be backported
-- a set of small commits belongs in another branch
+- Several related fixes need to be backported
+- A set of small commits belongs in another branch
 
-----------------------------------------------------------------------
-4.6 Pros of git cherry-pick
-----------------------------------------------------------------------
+### 4.6 Pros of git cherry-pick
 
 - very precise
 - useful for hotfixes
@@ -557,177 +541,167 @@ Useful when:
 - allows selective reuse of work
 - helpful when a commit was made on the wrong branch
 
-----------------------------------------------------------------------
-4.7 Cons of git cherry-pick
-----------------------------------------------------------------------
+### 4.7 Cons of git cherry-pick
 
-- duplicates commits
-- can make history confusing
-- can be dangerous if you pick dependent commits out of context
-- overuse can create maintenance headaches
+- Duplicates commits
+- Can make history confusing
+- Can be dangerous if you pick dependent commits out of context
+- Overuse can create maintenance headaches
 
-----------------------------------------------------------------------
-4.8 Most useful cherry-pick commands
-----------------------------------------------------------------------
+### 4.8 Most useful cherry-pick commands
 
 Cherry-pick one commit:
-    git cherry-pick <commit-id>
+<pre> git cherry-pick <commit-id> </pre>
 
 Cherry-pick multiple commits:
-    git cherry-pick <commit1> <commit2>
+<pre> git cherry-pick <commit1> <commit2> </pre>
 
 Cherry-pick range:
-    git cherry-pick <start>^..<end>
+<pre> git cherry-pick <start>^..<end> </pre>
 
 Continue after resolving conflicts:
-    git cherry-pick --continue
+<pre> git cherry-pick --continue </pre>
 
 Abort:
-    git cherry-pick --abort
+<pre> git cherry-pick --abort </pre>
 
 Find commit IDs:
-    git log --oneline
+<pre> git log --oneline </pre>
 
-======================================================================
-5. Deep Comparison: What changes in history?
-======================================================================
+----------------------------------------------------------------------
 
-git merge:
+## 5. Deep Comparison: What changes in history?
+
+**git merge:**
 - preserves original branch identity
 - may create a merge commit
 - good for collaboration and true branch history
 
-git rebase:
+**git rebase:**
 - rewrites commit IDs
 - changes how history looks
 - good for linear history and local cleanup
 
-git cherry-pick:
+**git cherry-pick:**
 - copies only selected commits
 - creates duplicates of the chosen commit or commits
 - good for selective transfer of changes
 
-======================================================================
-6. When to choose which one
-======================================================================
+----------------------------------------------------------------------
 
-Choose git merge when:
-- you want the whole branch
-- the feature is complete
-- you want safe collaboration
-- you want to preserve branch relationships
-- you are merging via pull request or team workflow
+## 6. When to choose which one
 
-Choose git rebase when:
-- you want a clean history
-- you need to update your feature branch from latest main
-- you want to clean up your local commits
-- your branch is private or local and not yet shared widely
+***Choose git merge when:***
+- You want the whole branch
+- The feature is complete
+- You want safe collaboration
+- You want to preserve branch relationships
+- You are merging via pull request or team workflow
 
-Choose git cherry-pick when:
-- you want one specific fix
-- you want a hotfix or backport
-- a commit is on the wrong branch
-- you do not want the entire branch history
+***Choose git rebase when:***
+- You want a clean history
+- You need to update your feature branch from the latest main
+- You want to clean up your local commits
+- Your branch is private or local and not yet shared widely
 
-======================================================================
-7. Real-World Scenarios
-======================================================================
+***Choose git cherry-pick when:***
+- You want one specific fix
+- You want a hotfix or backport
+- A commit is on the wrong branch
+- You do not want the entire branch history
 
-Scenario 1: Completed feature branch
+----------------------------------------------------------------------
+
+## 7. Real-World Scenarios
+
+**Scenario 1: Completed feature branch**
 - You built a login feature in `feature-login`
 - Now the whole feature is ready for main
 
 Best choice:
+<pre>
     git checkout main
-    git merge feature-login
+    git merge feature-login </pre>
 
-Why:
-- you want the full work from the branch
-- merge preserves feature history cleanly
+***Why:***
+- You want the full work from the branch
+- Merge preserves feature history cleanly
 
-----------------------------------------------------------------------
-Scenario 2: Your feature branch is outdated
-----------------------------------------------------------------------
-
-- main has new commits
-- you want your feature branch updated before PR
+**Scenario 2: Your feature branch is outdated**
+- Main has new commits
+- You want your feature branch updated before PR
 
 Best choice:
+<pre>
     git checkout feature-login
     git fetch origin
-    git rebase origin/main
+    git rebase origin/main </pre>
 
-Why:
-- rebasing updates your branch to the latest base
-- your history stays cleaner than a merge-from-main
+***Why:***
+- Rebasing updates your branch to the latest base
+- Your history stays cleaner than a merge-from-main
 
-----------------------------------------------------------------------
-Scenario 3: Urgent hotfix for production
-----------------------------------------------------------------------
-
-- a fix exists in develop
-- production main needs only that one fix right now
+**Scenario 3: Urgent hotfix for production**
+- A fix exists in develop
+- Production main needs only that one fix right now
 
 Best choice:
+<pre>
     git checkout main
-    git cherry-pick <fix-commit-id>
+    git cherry-pick <fix-commit-id> </pre>
 
-Why:
-- you want only the urgent fix
-- you do not want all unfinished work from develop
+***Why:***
+- You want only the urgent fix
+- You do not want all unfinished work from develop
 
-----------------------------------------------------------------------
-Scenario 4: Wrong branch commit
-----------------------------------------------------------------------
-
-- you committed a change on `main` by mistake
-- it belongs on `feature-x`
+**Scenario 4: Wrong branch commit**
+- You committed a change on `main` by mistake
+- It belongs on `feature-x`
 
 Best choice:
+<pre>
     git checkout feature-x
-    git cherry-pick <commit-id>
+    git cherry-pick <commit-id> </pre>
+       
+***Why:*** 
+- Move only the relevant commit
 
-Why:
-- move only the relevant commit
-
-----------------------------------------------------------------------
-Scenario 5: Clean up local commit history before PR
-----------------------------------------------------------------------
-
-- your branch has many small WIP commits
-- you want a clean PR
+**Scenario 5: Clean up local commit history before PR**
+- Your branch has many small WIP commits
+- You want a clean PR
 
 Best choice:
-    git rebase -i HEAD~5
+<pre > git rebase -i HEAD~5 </pre>
 
-Why:
+***Why:***
 - combine or reword commits
 - make the history easier for reviewers
 
-======================================================================
-8. Conflict Handling Summary
-======================================================================
+----------------------------------------------------------------------
+
+## 8. Conflict Handling Summary
 
 Merge conflict flow:
+<pre>
     git merge branch-name
     git status
     resolve files
     git add .
-    git commit
+    git commit </pre>
 
 Abort merge:
-    git merge --abort
+<pre> git merge --abort </pre>
 
 Rebase conflict flow:
+<pre>
     git rebase main
     git status
     resolve files
     git add .
-    git rebase --continue
-
+    git rebase --continue </pre>
+    
 Abort rebase:
-    git rebase --abort
+<pre> git rebase --abort </pre>
 
 Cherry-pick conflict flow:
     git cherry-pick <commit-id>
