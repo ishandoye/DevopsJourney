@@ -54,9 +54,8 @@ All three commands move changes between branches, but they do it differently.
 `git merge` integrates the changes from one branch into the current branch.
 
 Example:
-<pre>
-    git checkout main
-    git merge feature-login </pre>
+<pre>git checkout main
+git merge feature-login </pre>
 
 Meaning:
 - switch to `main`
@@ -129,9 +128,8 @@ Example:
               D---E
 
 If `main` is still at C and all new work is on the feature branch, then:
-<pre>
-    git checkout main
-    git merge feature</pre>
+<pre>git checkout main
+git merge feature</pre>
 
 ***Result:***
 
@@ -148,7 +146,7 @@ Why does this happen?
 
 If you want to always preserve the fact that a branch was merged, use:
 
-<pre> git merge --no-ff feature</pre>
+<pre>git merge --no-ff feature</pre>
 
 This forces a merge commit even if fast-forward is possible.
 
@@ -167,12 +165,11 @@ A merge conflict happens when Git cannot automatically combine the changes.
 - both branches renamed or moved files in incompatible ways
 
 Typical flow:
-<pre>
-    git checkout main
-    git merge feature-branch</pre>
+<pre>git checkout main
+git merge feature-branch</pre>
 
 If conflicts happen:
-<pre> git status </pre>
+<pre>git status </pre>
 
 ***Then:***
 - open conflicted files
@@ -180,12 +177,11 @@ If conflicts happen:
 - stage resolved files
 
 Commands:
-<pre>
-    git add .
-    git commit</pre>
+<pre>git add .
+git commit</pre>
 
 Abort a merge if needed:
-<pre> git merge --abort </pre>
+<pre>git merge --abort </pre>
 
 ### 2.7 Pros of git merge
 
@@ -204,16 +200,16 @@ Abort a merge if needed:
 ### 2.9 Most useful merge commands
 
 Merge a branch into the current branch:
-<pre> git merge branch-name </pre>
+<pre>git merge branch-name </pre>
 
 Always create a merge commit:
-<pre> git merge --no-ff branch-name </pre>
+<pre>git merge --no-ff branch-name </pre>
 
 Abort current merge:
-<pre> git merge --abort </pre>
+<pre>git merge --abort </pre>
 
 Visualize history:
-<pre> git log --oneline --graph --all </pre>
+<pre>git log --oneline --graph --all </pre>
 
 ----------------------------------------------------------------------
 
@@ -223,9 +219,8 @@ What it does:
 `git rebase` takes commits from your current branch and reapplies them on top of another branch.
 
 Example:
-<pre>
-    git checkout feature-login
-    git rebase main </pre>
+<pre>git checkout feature-login
+git rebase main </pre>
 
 Meaning:
 - Take the commits from `feature-login`
@@ -267,9 +262,8 @@ Suppose history looks like this:
     feature:          D---E
 
 Run:
-<pre>
-    git checkout feature
-    git rebase main</pre>
+<pre>git checkout feature
+git rebase main</pre>
 
 After rebase:
 
@@ -308,34 +302,32 @@ This is the main reason developers like rebase.
 A rebase conflict happens while Git is replaying each commit.
 
 Flow:
-<pre>
-    git checkout feature
-    git rebase main </pre>
+<pre>git checkout feature
+git rebase main </pre>
 
 If conflict happens:
-<pre> git status </pre>
+<pre>git status </pre>
 
 Resolve the files, then:
-<pre>
-    git add .
-    git rebase --continue</pre>
+<pre>git add .
+git rebase --continue</pre>
 
 Abort if needed:
-<pre>    git rebase --abort </pre>
+<pre>git rebase --abort </pre>
 
 Skip the problematic commit if appropriate:
-<pre>    git rebase --skip </pre>
+<pre>git rebase --skip </pre>
 
 ***Why rebase conflicts can feel harder:***
 - Git may stop on multiple commits one by one
-- you may need to resolve conflicts multiple times during the replay
+- You may need to resolve conflicts multiple times during the replay
 
 ### 3.6 Interactive rebase
 
 Interactive rebase is one of the most powerful Git features.
 
 Command:
-<pre>    git rebase -i HEAD~5 </pre>
+<pre>git rebase -i HEAD~5 </pre>
 
 ***This opens an editor with the last 5 commits and lets you:***
 - pick: keep commit as-is
@@ -384,7 +376,7 @@ Rebase rewrites commit history, so it can be dangerous on shared branches.
 ### 3.8 Pull with rebase
 
 Useful command:
-<pre> git pull --rebase </pre>
+<pre>git pull --rebase </pre>
                         
 ***What it does:***
 - Fetches remote changes
@@ -412,22 +404,22 @@ Useful command:
 ### 3.11 Most useful rebase commands
 
 Rebase current branch onto main:
-<pre> git rebase main </pre>
+<pre>git rebase main </pre>
 
 Continue after conflict resolution:
-<pre> git rebase --continue </pre>
+<pre>git rebase --continue </pre>
 
 Abort the rebase:
-<pre> git rebase --abort </pre>
+<pre>git rebase --abort </pre>
 
 Skip current commit during rebase:
-<pre> git rebase --skip </pre>
+<pre>git rebase --skip </pre>
 
 Interactive rebase:
-<pre> git rebase -i HEAD~5 </pre>
+<pre>git rebase -i HEAD~5 </pre>
 
 Pull with rebase:
-<pre> git pull --rebase </pre>
+<pre>git pull --rebase </pre>
 
 ----------------------------------------------------------------------
 
@@ -437,9 +429,8 @@ Pull with rebase:
 `git cherry-pick` copies one or more specific commits and applies them to the current branch.
 
 Example:
-<pre>
-    git checkout main
-    git cherry-pick abc1234 </pre>
+<pre>git checkout main
+git cherry-pick abc1234 </pre>
 
 Meaning:
 - take commit `abc1234`
@@ -481,9 +472,8 @@ Suppose this history exists:
     feature:           D---E---F
 
 If only commit E is needed in main:
-<pre>
-    git checkout main
-    git cherry-pick <commit-E> </pre>
+<pre>git checkout main
+git cherry-pick {commit-E} </pre>
 
 Result:
 
@@ -501,18 +491,17 @@ This means cherry-pick duplicates work in history, which is why it should be use
 Cherry-pick can also create conflicts if the chosen commit depends on surrounding code that is different on the target branch.
 
 Flow:
-<pre> git cherry-pick <commit-id> </pre>
+<pre>git cherry-pick {commit-id} </pre>
 
 If conflict occurs:
-<pre> git status </pre>
+<pre>git status </pre>
 
 Resolve files, then:
-<pre>
-    git add .
-    git cherry-pick --continue </pre>
+<pre>git add .
+git cherry-pick --continue </pre>
 
 Abort:
-<pre> git cherry-pick --abort </pre>
+<pre>git cherry-pick --abort </pre>
 
 ***Why this happens:*** 
 - The selected commit may assume other commits already exist
@@ -521,13 +510,13 @@ Abort:
 ### 4.5 Cherry-picking multiple commits
 
 Cherry-pick one commit:
-<pre> git cherry-pick <commit-id> </pre>
+<pre>git cherry-pick {commit-id} </pre>
 
 Cherry-pick multiple commits:
-<pre> git cherry-pick <commit1> <commit2> </pre>
+<pre>git cherry-pick {commit1} {commit2} </pre>
 
 Cherry-pick a range:
-<pre> git cherry-pick <start>^..<end> </pre>
+<pre>git cherry-pick {start}^..{end} </pre>
 
 Useful when:
 - Several related fixes need to be backported
@@ -551,22 +540,22 @@ Useful when:
 ### 4.8 Most useful cherry-pick commands
 
 Cherry-pick one commit:
-<pre> git cherry-pick <commit-id> </pre>
+<pre>git cherry-pick {commit-id} </pre>
 
 Cherry-pick multiple commits:
-<pre> git cherry-pick <commit1> <commit2> </pre>
+<pre>git cherry-pick {commit1} {commit2} </pre>
 
 Cherry-pick range:
-<pre> git cherry-pick <start>^..<end> </pre>
+<pre>git cherry-pick {start}^..{end} </pre>
 
 Continue after resolving conflicts:
-<pre> git cherry-pick --continue </pre>
+<pre>git cherry-pick --continue </pre>
 
 Abort:
-<pre> git cherry-pick --abort </pre>
+<pre>git cherry-pick --abort </pre>
 
 Find commit IDs:
-<pre> git log --oneline </pre>
+<pre>git log --oneline </pre>
 
 ----------------------------------------------------------------------
 
@@ -619,9 +608,8 @@ Find commit IDs:
 - Now the whole feature is ready for main
 
 Best choice:
-<pre>
-    git checkout main
-    git merge feature-login </pre>
+<pre>git checkout main
+git merge feature-login </pre>
 
 ***Why:***
 - You want the full work from the branch
@@ -632,10 +620,9 @@ Best choice:
 - You want your feature branch updated before PR
 
 Best choice:
-<pre>
-    git checkout feature-login
-    git fetch origin
-    git rebase origin/main </pre>
+<pre>git checkout feature-login
+git fetch origin
+git rebase origin/main </pre>
 
 ***Why:***
 - Rebasing updates your branch to the latest base
@@ -646,9 +633,8 @@ Best choice:
 - Production main needs only that one fix right now
 
 Best choice:
-<pre>
-    git checkout main
-    git cherry-pick <fix-commit-id> </pre>
+<pre>git checkout main
+git cherry-pick {fix-commit-id} </pre>
 
 ***Why:***
 - You want only the urgent fix
@@ -659,9 +645,8 @@ Best choice:
 - It belongs on `feature-x`
 
 Best choice:
-<pre>
-    git checkout feature-x
-    git cherry-pick <commit-id> </pre>
+<pre>git checkout feature-x
+git cherry-pick {commit-id} </pre>
        
 ***Why:*** 
 - Move only the relevant commit
@@ -671,7 +656,7 @@ Best choice:
 - You want a clean PR
 
 Best choice:
-<pre > git rebase -i HEAD~5 </pre>
+<pre>git rebase -i HEAD~5</pre>
 
 ***Why:***
 - combine or reword commits
@@ -682,36 +667,34 @@ Best choice:
 ## 8. Conflict Handling Summary
 
 Merge conflict flow:
-<pre>
-    git merge branch-name
-    git status
-    resolve files
-    git add .
-    git commit </pre>
+<pre>git merge branch-name
+git status
+resolve files
+git add .
+git commit </pre>
 
 Abort merge:
-<pre> git merge --abort </pre>
+<pre>git merge --abort </pre>
 
 Rebase conflict flow:
-<pre>
-    git rebase main
-    git status
-    resolve files
-    git add .
-    git rebase --continue </pre>
+<pre>git rebase main
+git status
+resolve files
+git add .
+git rebase --continue </pre>
     
 Abort rebase:
-<pre> git rebase --abort </pre>
+<pre>git rebase --abort </pre>
 
 Cherry-pick conflict flow:
-    git cherry-pick <commit-id>
-    git status
-    resolve files
-    git add .
-    git cherry-pick --continue
+<pre>git cherry-pick {commit-id}
+git status
+resolve files
+git add .
+git cherry-pick --continue</pre>
 
 Abort cherry-pick:
-    git cherry-pick --abort
+<pre>git cherry-pick --abort</pre>
 
 ----------------------------------------------------------------------
 
@@ -742,47 +725,47 @@ Abort cherry-pick:
 MERGE
 -----
 Merge a branch:
-<pre> git merge branch-name </pre>
+<pre>git merge branch-name </pre>
 
 Force-merge commit:
-<pre> git merge --no-ff branch-name </pre>
+<pre>git merge --no-ff branch-name </pre>
 
 Abort merge:
-<pre> git merge --abort </pre>
+<pre>git merge --abort </pre>
 
 REBASE
 ------
 Rebase onto main:
-    git rebase main
+<pre>git rebase main</pre>
 
 Continue rebase:
-    git rebase --continue
+<pre>git rebase --continue</pre>
 
 Abort rebase:
-    git rebase --abort
+<pre>git rebase --abort</pre>
 
 Interactive rebase:
-    git rebase -i HEAD~5
+<pre>git rebase -i HEAD~5</pre>
 
 Pull with rebase:
-    git pull --rebase
+<pre>git pull --rebase</pre>
 
 CHERRY-PICK
 -----------
 Pick one commit:
-    git cherry-pick <commit-id>
+<pre>git cherry-pick {commit-id>}</pre>
 
 Pick multiple commits:
-    git cherry-pick <commit1> <commit2>
+<pre>git cherry-pick {commit1} {commit2}</pre>
 
 Pick range:
-    git cherry-pick <start>^..<end>
+<pre>git cherry-pick {start}^..{end}</pre>
 
 Continue:
-    git cherry-pick --continue
+<pre>git cherry-pick --continue</pre>
 
 Abort:
-    git cherry-pick --abort
+<pre>git cherry-pick --abort</pre>
 
 ----------------------------------------------------------------------
 
@@ -811,13 +794,13 @@ git cherry-pick:
 ## 12. Final Recommendation
 
 If you want the whole branch, use:
-<pre> git merge </pre>
+<pre>git merge </pre>
 
 If you want cleaner history and are working on your own branch, use:
-<pre> git rebase </pre>
+<pre>git rebase </pre>
 
 If you want only one or a few specific commits, use:
-<pre> git cherry-pick </pre>
+<pre>git cherry-pick </pre>
 
 ***A practical day-to-day workflow:***
 - work on a feature branch
