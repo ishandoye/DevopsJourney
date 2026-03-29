@@ -713,42 +713,42 @@ Cherry-pick conflict flow:
 Abort cherry-pick:
     git cherry-pick --abort
 
-======================================================================
-9. Best Practices
-======================================================================
+----------------------------------------------------------------------
 
-For git merge:
+## 9. Best Practices
+
+***For git merge:***
 - use for shared branches
 - use for completed features
 - good default in team environments
 - use `--no-ff` if you want explicit feature merge commits
 
-For git rebase:
+***For git rebase:***
 - use on local feature branches
 - use before opening a PR if your team prefers linear history
 - use interactive rebase to clean commits
 - avoid rebasing shared branches unless the team agrees
 
-For git cherry-pick:
+***For git cherry-pick:***
 - use sparingly
 - ideal for hotfixes and backports
 - double-check whether the selected commit depends on others
-- avoid replacing proper branch integration with repeated cherry-picks
+- Avoid replacing proper branch integration with repeated cherry-picks
 
-======================================================================
-10. Most Useful Commands Quick Reference
-======================================================================
+----------------------------------------------------------------------
+
+## 10. Most Useful Commands Quick Reference
 
 MERGE
 -----
 Merge a branch:
-    git merge branch-name
+<pre> git merge branch-name </pre>
 
-Force merge commit:
-    git merge --no-ff branch-name
+Force-merge commit:
+<pre> git merge --no-ff branch-name </pre>
 
 Abort merge:
-    git merge --abort
+<pre> git merge --abort </pre>
 
 REBASE
 ------
@@ -784,53 +784,54 @@ Continue:
 Abort:
     git cherry-pick --abort
 
-======================================================================
-11. Interview-Style Summary
-======================================================================
+----------------------------------------------------------------------
+
+## 11. Interview-Style Summary
 
 git merge:
+----------
 - Combines full branch history into another branch.
 - Preserves branch structure.
 - Best for collaborative integration.
 
 git rebase:
+-----------
 - Replays commits on a new base.
 - Rewrites history for linear logs.
 - Best for local cleanup and updating feature branches.
 
 git cherry-pick:
+----------------
 - Copies selected commits only.
 - Does not merge full branch history.
 - Best for hotfixes, backports, and specific changes.
 
-======================================================================
-12. Final Recommendation
-======================================================================
+----------------------------------------------------------------------
+
+## 12. Final Recommendation
 
 If you want the whole branch, use:
-    git merge
+<pre> git merge </pre>
 
 If you want cleaner history and are working on your own branch, use:
-    git rebase
+<pre> git rebase </pre>
 
 If you want only one or a few specific commits, use:
-    git cherry-pick
+<pre> git cherry-pick </pre>
 
-A practical day-to-day workflow:
+***A practical day-to-day workflow:***
 - work on a feature branch
-- rebase it on latest main when needed
+- rebase it on the latest main when needed
 - open a PR
 - merge the feature into main
-- cherry-pick only for rare selective fixes
+- cherry-pick only for rare, selective fixes
 
-======================================================================
-13. Safe Golden Rule
-======================================================================
+----------------------------------------------------------------------
+
+## 13. Safe Golden Rule
 
 - Merge is safest for shared branches
 - Rebase is powerful for local branches
 - Cherry-pick is precise for selective commits
 - Never rewrite shared history casually
 - Always check `git log --oneline --graph --all` if you are unsure
-
-End of document.
