@@ -1,3 +1,6 @@
+[Ansible Doc](https://docs.ansible.com/projects/ansible/latest/getting_started/index.html)
+
+
 ## 1. Control Node Requirements
 - Linux machine (preferred: Ubuntu / EL / Amazon Linux)
 - Python installed (Ansible depends on Python)
