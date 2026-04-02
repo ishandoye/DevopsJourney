@@ -43,3 +43,11 @@ These are YAML files that define tasks in a structured way.
   - Version-controlled
   - Readable and organized
   - Supports conditionals, loops, handlers, etc.
+
+## Simple Way to Remember
+- Ad-hoc = quick command (like a one-time shell command)
+- Playbook = structured automation (like a script/program)
+
+## When to Use What
+- Use ad-hoc → when you need to do something fast and simple
+- Use playbooks → when the task is important, repeatable, or complex
