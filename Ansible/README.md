@@ -1,6 +1,6 @@
 ## Ansible Documentation.
-[Ansible Doc](https://docs.ansible.com/projects/ansible/latest/getting_started/index.html)
-[Ansible Module](https://docs.ansible.com/projects/ansible/2.9/modules/list_of_all_modules.html#all-modules)
+- [Ansible Doc](https://docs.ansible.com/projects/ansible/latest/getting_started/index.html)
+- [Ansible Module](https://docs.ansible.com/projects/ansible/2.9/modules/list_of_all_modules.html#all-modules)
 
 ---
 
