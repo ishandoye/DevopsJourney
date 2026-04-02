@@ -7,6 +7,7 @@ Example:
 ansible all -m ping
 ansible webservers -m service -a "name=nginx state=restart"
 ansible -i inventory all -m "shell" -a "touch test.txt"
+ansible -i inventory webservers -m "shell" -a "touch test.txt"
 ```
 - Best for:
   - Quick checks (ping, uptime)
