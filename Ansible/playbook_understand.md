@@ -101,5 +101,15 @@
        name: nginx
        state: started
 ```
+> [!Note]
+> Save this file using the extension ".yml" or ".yaml".
 
+#### Now you can execute it using the command below.
+> [!Important]
+> - Make sure you have the inventory file, and you are at the same location.
+> - If your inventory file is in a default location they you do not need "-i" in the ansible-playbook command.
+
+```BASH
+ansible-playbook -i inventory first-playbook.yml
+```
 
