@@ -109,3 +109,33 @@ Example: ``roles/nginx/tasks/main.yml``
 | ***Why use*** | Clean code, reuse, scalability |
 | ***When to use*** | Large, repeatable, production automation |
 | ***How to use*** |Create role → define tasks → call in playbook|
+
+# Additional Notes
+## How you can generate the Roles for your project.
+Example: `Let's suppose you want to create a role for Kubernetes.`
+```Bash
+[root@node Ansible]# mkdir Projects
+[root@node Ansible]# cd Projects/
+[root@node Projects]# ll
+total 0
+[root@node Projects]# mkdir Roles_playbook_example
+[root@node Projects]# cd Roles_playbook_example/
+[root@node Roles_playbook_example]#
+[root@node Roles_playbook_example]# ansible-galaxy role init kubernetes
+- Role kubernetes was created successfully
+[root@node Roles_playbook_example]# ls
+kubernetes
+[root@node Roles_playbook_example]# cd kubernetes/
+[root@node kubernetes]# ll
+total 4
+drwxr-xr-x. 2 root root   22 Apr  3 13:11 defaults
+drwxr-xr-x. 2 root root    6 Apr  3 13:11 files
+drwxr-xr-x. 2 root root   22 Apr  3 13:11 handlers
+drwxr-xr-x. 2 root root   22 Apr  3 13:11 meta
+-rw-r--r--. 1 root root 1328 Apr  3 13:11 README.md
+drwxr-xr-x. 2 root root   22 Apr  3 13:11 tasks
+drwxr-xr-x. 2 root root    6 Apr  3 13:11 templates
+drwxr-xr-x. 2 root root   39 Apr  3 13:11 tests
+drwxr-xr-x. 2 root root   22 Apr  3 13:11 vars
+```
+
