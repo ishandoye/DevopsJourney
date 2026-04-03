@@ -31,5 +31,18 @@ Started again with a fresh idea and  fresh details.
 	
 - Useful commands: git clone, git status, git add, git commit, git log, git diff, git push, git pull
 - Check Git folder for More details
+- Below are how you can make a note or any tip.
+	- Blue (Note): > [!NOTE]
+	- Green (Tip): > [!TIP]
+	- Purple (Important): > [!IMPORTANT]
+	- Yellow (Warning): > [!WARNING]
+	- Red (Caution): > [!CAUTION] 
+
+Example Syntax:
+markdown
+~~~ 
+> [!NOTE]
+> This is a blue colored note block.
+~~~
 </details>
 
