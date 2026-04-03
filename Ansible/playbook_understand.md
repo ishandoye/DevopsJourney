@@ -83,7 +83,7 @@
    - name: Start Nginx
      shell: Systemctl start nginx     
 ```
-##### Using [Service Module](https://docs.ansible.com/projects/ansible/2.9/modules/service_module.html#service-module){:target="_blank"}
+##### Using [Service Module](https://docs.ansible.com/projects/ansible/2.9/modules/service_module.html#service-module)
 
 ```YAML
 ---
