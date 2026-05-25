@@ -1,3 +1,4 @@
+```bash
 [root@node Docker]# cd getting-started-todo-app/
 [root@node getting-started-todo-app]# ll
 total 28
@@ -83,4 +84,4 @@ ubuntu:latest                                                                   
 ultimate-devops-project-demo-opensearch:latest                                                    c22a74802686       2.47GB         1.01GB    U
 valkey/valkey:8.1.3-alpine                                                                        d827e7f7552c       69.2MB         19.8MB    U
 [root@node getting-started-todo-app]#
-
+```
