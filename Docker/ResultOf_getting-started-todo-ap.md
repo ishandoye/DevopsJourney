@@ -1,3 +1,4 @@
+```bash
 [root@node getting-started-todo-app]# docker compose watch
 [+] up 40/42
  ✔ Image traefik:v3.6                               Pulled                                                                                               3.2s
@@ -74,4 +75,4 @@ Watch enabled
 
 ^C
 [root@node getting-started-todo-app]# ll
-
+```
