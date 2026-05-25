@@ -136,266 +136,316 @@ docker run --cap-drop ALL nginx
 -----------------
 ## CONTAINER CONTROL
 -----------------
-```bash 
+```bash
+
 # docker start <container>
 # docker stop <container>
 # docker restart <container>
 # docker kill <container>
-#
-" Pause/unpause "
-#docker pause <container>
-#docker unpause <container>
-#
-## Rename container
-#docker rename oldname newname
-#
-## Remove container
-#docker rm <container>
-#
-## Force remove
-#docker rm -f <container>
-#
-## -----------------
+
+PAUSE_UNPAUSE_COMMANDS:
+
+# docker pause <container>
+# docker unpause <container>
+
+RENAME CONTAINER:
+# docker rename oldname newname
+
+REMOVE CONTAINER
+# docker rm <container>
+
+FORCE REMOVE
+# docker rm -f <container>
+```
+-----------------
 ## LOGS
-## -----------------
-#
-#docker logs <container>
-#docker logs -f <container>
-#docker logs --tail 100 <container>
-#docker logs --since 1h <container>
-#
-## -----------------
+-----------------
+```bash
+# docker logs <container>
+# docker logs -f <container>
+# docker logs --tail 100 <container>
+# docker logs --since 1h <container>
+```
+-----------------
 ## EXEC / ACCESS
-## -----------------
-#
-#docker exec -it <container> /bin/bash
-#docker exec -it <container> /bin/sh
-#
-## Execute command
-#docker exec <container> ps -ef
-#
-## -----------------
+-----------------
+```bash
+# docker exec -it <container> /bin/bash
+# docker exec -it <container> /bin/sh
+```
+### Execute command
+```bash
+# docker exec <container> ps -ef
+```
+-----------------
 ## INSPECT / METADATA
-## -----------------
-#
-#docker inspect <container>
-#
-## Container state
-#docker inspect <container> --format='{{.State.Status}}'
-#
-## Exit code
-#docker inspect <container> --format='{{.State.ExitCode}}'
-#
-## OOM status
-#docker inspect <container> --format='{{.State.OOMKilled}}'
-#
-## Restart count
-#docker inspect <container> --format='{{.RestartCount}}'
-#
-## IP address
-#docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' <container>
-#
-## Mounted volumes
-#docker inspect <container> | grep -A 20 Mounts
-#
-## Environment variables
-#docker inspect <container> | grep -A 20 Env
-#
-## -----------------
+-----------------
+```bash
+# docker inspect <container>
+```
+### Container state
+```bash
+# docker inspect <container> --format='{{.State.Status}}'
+```
+### Exit code
+```bash
+# docker inspect <container> --format='{{.State.ExitCode}}'
+```
+### OOM status
+```bash
+# docker inspect <container> --format='{{.State.OOMKilled}}'
+```
+### Restart count
+```bash
+# docker inspect <container> --format='{{.RestartCount}}'
+```
+### IP address
+```bash
+# docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' <container>
+```
+### Mounted volumes
+```bash
+# docker inspect <container> | grep -A 20 Mounts
+```
+### Environment variables
+```bash
+# docker inspect <container> | grep -A 20 Env
+```
+-----------------
 ## RESOURCE USAGE
-## -----------------
-#
-#docker stats
-#docker stats --no-stream
-#
-## Top processes
-#docker top <container>
-#
-## -----------------
+-----------------
+```
+# docker stats
+# docker stats --no-stream
+
+TOP PROCESSES
+# docker top <container>
+```
+-----------------
 ## NETWORKING
-## -----------------
-#
-#docker network ls
-#docker network inspect <network>
-#
-## Create network
-#docker network create mynet
-#
-## Connect/disconnect network
-#docker network connect mynet <container>
-#docker network disconnect mynet <container>
-#
-## Remove network
-#docker network rm mynet
-#
-## -----------------
+-----------------
+```bash
+# docker network ls
+# docker network inspect <network>
+```
+### Create network
+```bash
+# docker network create mynet
+```
+### Connect/disconnect network
+```bash
+# docker network connect mynet <container>
+# docker network disconnect mynet <container>
+```
+### Remove network
+```bash
+# docker network rm mynet
+```
+-----------------
 ## STORAGE / VOLUMES
-## -----------------
-#
-#docker volume ls
-#docker volume inspect <volume>
-#
-## Create volume
-#docker volume create myvol
-#
-## Remove volume
-#docker volume rm myvol
-#
-## -----------------
+-----------------
+```
+# docker volume ls
+# docker volume inspect <volume>
+
+CREATE VOLUME:
+# docker volume create myvol
+
+REMOVE VOLUME:
+# docker volume rm myvol
+```
+-----------------
 ## SYSTEM / STORAGE
-## -----------------
-#
-#docker system df
-#docker system df -v
-#podman system df
-#
-## Docker info
-#docker info
-#
-## Podman info
-#podman info
-#
-## Docker version
-#docker version
-#podman version
-#
-## -----------------
+-----------------
+```bash
+# docker system df
+# docker system df -v
+# podman system df
+
+DOCKER INFO:
+
+# docker info
+
+PODMAN INFO:
+
+# podman info
+
+DOCKER VERSION
+
+# docker version
+# podman version
+```
+-----------------
 ## CLEANUP COMMANDS
-## -----------------
-#
-## Remove stopped containers
-#docker container prune
-#
-## Remove dangling images
-#docker image prune
-#
-## Remove all unused images
-#docker image prune -a
-#
-## Remove unused volumes
-#docker volume prune
-#
-## Remove unused networks
+-----------------
+```bash
+REMOVE STOPPED CONTAINERS:
+
+# docker container prune
+
+REMOVE DANGLING IMAGES:
+
+# docker image prune
+
+REMOVE ALL UNUSED IMAGES:
+
+# docker image prune -a
+
+REMOVE USUSED VOLUMES:
+
+# docker volume prune
+
+REMOVE UNUSED NETWORKS:
+
 #docker network prune
-#
-## Nuclear cleanup
-#docker system prune -a
-#
-## -----------------
+
+NUCLEAR CLEANUP:
+
+# docker system prune -a
+```
+-----------------
 ## TROUBLESHOOTING
-## -----------------
-#
-## Docker daemon logs
-#journalctl -u docker
-#journalctl -u containerd
-#
-## Podman logs
-#journalctl --user -u podman
-#
-## Kernel OOM
-#dmesg | grep -i oom
-#
-## Storage driver
-#docker info | grep "Storage Driver"
-#
-## Runtime
-#docker info | grep Runtime
-#
-## Check cgroup version
-#cat /sys/fs/cgroup/cgroup.controllers
-#
-## Check mounts
-#findmnt
-#mount | grep overlay
-#
-## Overlay usage
-#du -sh /var/lib/docker/overlay2
-#du -sh ~/.local/share/containers/storage/overlay
-#
-## Inode usage
-#df -i /var/lib/docker
-#
-## Open files
-#lsof +D /var/lib/docker
-#
-## -----------------
+-----------------
+```bash
+
+DOCKER DAEMON LOGS:
+
+# journalctl -u docker
+# journalctl -u containerd
+
+PODMAN LOGS
+
+# journalctl --user -u podman
+
+KERNEL OOM
+
+# dmesg | grep -i oom
+
+STORAGE DRIVER:
+
+# docker info | grep "Storage Driver"
+
+RUNTIME:
+
+# docker info | grep Runtime
+```
+### Check cgroup version
+```bash
+# cat /sys/fs/cgroup/cgroup.controllers
+```
+### Check mounts
+```bash
+# findmnt
+# mount | grep overlay
+```
+### Overlay usage
+```bash
+# du -sh /var/lib/docker/overlay2
+# du -sh ~/.local/share/containers/storage/overlay
+```
+### Inode usage
+```bash
+# df -i /var/lib/docker
+```
+### Open files
+```
+# lsof +D /var/lib/docker
+```
+
+-----------------
 ## NAMESPACE DEBUGGING
-## -----------------
-#
-#lsns
-#lsns -t net
-#
-## Enter namespaces
-#nsenter --target <pid> --mount --uts --ipc --net --pid
-#
-## -----------------
+-----------------
+```bash
+# lsns
+# lsns -t net
+
+ENTER NAMESPACES:
+
+# nsenter --target <pid> --mount --uts --ipc --net --pid
+```
+-----------------
 ## NETWORK DEBUGGING
-## -----------------
-#
-## Check routes
-#ip route show
-#
-## Check ports
-#ss -tlnp
-#
-## Check bridge interfaces
-#bridge link
-#bridge vlan
-#bridge fdb
-#
-## DNS inside container
-#docker exec -it <container> cat /etc/resolv.conf
-#
-## Connectivity test
-#docker exec -it <container> ping google.com
-#
-## DNS lookup
-#docker exec -it <container> nslookup google.com
-#
-## -----------------
+-----------------
+```bash
+CHECK ROUTES:
+
+# ip route show
+
+CHECK PORTS:
+
+# ss -tlnp
+
+CHECK BRIDGE INTERFACES:
+
+# bridge link
+# bridge vlan
+# bridge fdb
+
+DNS INSIDE CONTAINER:
+
+# docker exec -it <container> cat /etc/resolv.conf
+
+CONECTIVITY TEST:
+
+# docker exec -it <container> ping google.com
+
+DNS LOOKUP:
+
+# docker exec -it <container> nslookup google.com
+```
+-----------------
 ## SELINUX
-## -----------------
-#
-#ausearch -m avc -ts recent
-#restorecon -Rv /path
-#
-## -----------------
+-----------------
+```bash
+# ausearch -m avc -ts recent
+# restorecon -Rv /path
+```
+-----------------
 ## PODMAN SPECIFIC
-## -----------------
-#
-## Generate systemd service
-#podman generate systemd --new --name <container>
-#
-## Overlay layer mapping
-#podman inspect $(podman ps -aq) \
-#--format '{{.Name}} {{.GraphDriver.Data.UpperDir}} {{.GraphDriver.Data.LowerDir}}'
-#
-## Find overlay references
-#grep -R '<overlay-id>' ~/.local/share/containers/storage/
-#
-## Rootless check
-#podman info | grep rootless
-#
-## -----------------
+-----------------
+```bash
+
+GENERATE SYSTEMD SERVICE:
+
+# podman generate systemd --new --name <container>
+
+OVERLAY LAYER MAPPING:
+
+# podman inspect $(podman ps -aq) --format '{{.Name}} {{.GraphDriver.Data.UpperDir}} {{.GraphDriver.Data.LowerDir}}'
+
+FIND OVERLAY REFERENCES:
+
+# grep -R '<overlay-id>' ~/.local/share/containers/storage/
+
+ROOTLESS CHECK:
+
+# podman info | grep rootless
+```
+-----------------
 ## BUILD COMMANDS
-## -----------------
-#
-## Build image
-#docker build -t myapp:v1 .
-#
-## Build without cache
-#docker build --no-cache -t myapp:v1 .
-#
-## Multi-stage target build
-#docker build --target builder -t myapp:v1 .
-#
-## -----------------
+-----------------
+```
+BUID IMAGES:
+
+# docker build -t myapp:v1 .
+
+BUILD WITHOUT CACHE:
+
+# docker build --no-cache -t myapp:v1 .
+
+MULTI-STAGE TARGET BUILD:
+
+# docker build --target builder -t myapp:v1 .
+```
+
+-----------------
 ## DOCKER COMPOSE
-## -----------------
-#
-#docker compose up -d
-#docker compose down
-#docker compose ps
-#docker compose logs
-#docker compose restart
-#docker compose config
+-----------------
+```bash
+# docker compose up -d
+# docker compose down
+# docker compose ps
+# docker compose logs
+# docker compose restart
+# docker compose config
+```
