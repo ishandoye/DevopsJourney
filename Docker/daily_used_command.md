@@ -89,6 +89,17 @@
 ```bash
 # docker run -d -p 8080:80 nginx
 ```
+### Run the port, but don’t care which host port is used.
+```bash
+# docker run -p 80 nginx
+```
+### Publishing all ports
+```bash
+"With the -P or --publish-all flag, you can automatically publish all exposed ports to ephemeral ports.
+This is quite useful when you’re trying to avoid port conflicts in development or testing environments."
+
+# docker run -P nginx
+```
 ### Run with hostname
 ```bash
 # docker run --hostname app01 nginx
