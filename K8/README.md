@@ -39,7 +39,7 @@
 
 **Purpose:** Kubernetes command-line client.
 
-Used by administrators and developers to interact with the cluster.
+Used to interact with the cluster.
 
 Example:
 
@@ -313,15 +313,15 @@ kubectl apply -f nginx.yaml
 
 ### Step 1
 
-kubectl sends request to API Server.
+kubectl sends a request to the API Server.
 
 ### Step 2
 
-API Server validates request.
+API Server validates the request.
 
 ### Step 3
 
-API Server stores desired state in etcd.
+API Server stores the desired state in etcd.
 
 ### Step 4
 
