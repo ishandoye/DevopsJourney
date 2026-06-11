@@ -3,32 +3,53 @@
 ## High-Level Architecture
 
 ```text
-                kubectl
-                    |
-                    v
-             API Server
-                    |
-                    v
-                 etcd
-                    |
-      +-------------+-------------+
-      |                           |
-      v                           v
- Controller Manager         Scheduler
-      |                           |
-      +-------------+-------------+
-                    |
-                    v
-                Kubelet
-                    |
-                    v
-               containerd
-                    |
-                    v
-              Linux Kernel
-                    |
-                    v
-                Processes
+                    kubectl
+                        |
+                        v
+                 API Server
+                        |
+                        v
+                     etcd
+                        |
+          +-------------+-------------+
+          |                           |
+          v                           v
+ Controller Manager             Scheduler
+          |                           |
+          +-------------+-------------+
+                        |
+                        v
+                    Kubelet
+                        |
+                        v
+                   containerd
+                        |
+                        v
+                  Linux Kernel
+                        |
+                        v
+                    Processes
+
+
+Worker Node Components
+----------------------
+
++--------------------------------------+
+| Worker Node                          |
+|                                      |
+|  Kubelet                             |
+|     |                                |
+|     v                                |
+|  containerd                          |
+|     |                                |
+|     v                                |
+|  Pods / Containers                   |
+|                                      |
+|  kube-proxy                          |
+|     |                                |
+|     +--> iptables / IPVS rules       |
+|                                      |
++--------------------------------------+
 ```
 
 ---
