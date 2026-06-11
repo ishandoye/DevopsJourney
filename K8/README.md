@@ -50,6 +50,108 @@ Worker Node Components
 |     +--> iptables / IPVS rules       |
 |                                      |
 +--------------------------------------+
+
+```
+```bash
+
+                     KUBERNETES CLUSTER
+┌──────────────────────────────────────────────────────────────┐
+│                                                              │
+│                    CONTROL PLANE NODE(S)                     │
+│                                                              │
+│  ┌──────────────────────────────────────────────────────┐    │
+│  │ kube-apiserver                                       │    │
+│  │                                                      │    │
+│  │ • Front door of Kubernetes                           │    │
+│  │ • Receives all requests                              │    │
+│  └──────────────────────────────────────────────────────┘    │
+│                          │                                   │
+│                          ▼                                   │
+│  ┌──────────────────────────────────────────────────────┐    │
+│  │ etcd                                                 │    │
+│  │                                                      │    │
+│  │ • Cluster database                                  │    │
+│  │ • Stores all cluster state                          │    │
+│  └──────────────────────────────────────────────────────┘    │
+│                                                              │
+│  ┌──────────────────────┐   ┌──────────────────────────┐     │
+│  │ kube-scheduler       │   │ kube-controller-manager  │     │
+│  │                      │   │                          │     │
+│  │ • Picks nodes        │   │ • Maintains desired      │     │
+│  │   for Pods           │   │   state                  │     │
+│  └──────────────────────┘   └──────────────────────────┘     │
+│                                                              │
+└──────────────────────────────────────────────────────────────┘
+
+
+                              │
+                              │
+                              ▼
+
+
+┌──────────────────────────────────────────────────────────────┐
+│                        WORKER NODE A                         │
+│                                                              │
+│  kubelet                                                    │
+│     │                                                       │
+│     ▼                                                       │
+│  containerd                                                 │
+│     │                                                       │
+│     ▼                                                       │
+│  Pod A                                                      │
+│  Pod B                                                      │
+│                                                              │
+│  kube-proxy                                                 │
+│     │                                                       │
+│     ▼                                                       │
+│  iptables / IPVS rules                                      │
+│                                                              │
+└──────────────────────────────────────────────────────────────┘
+
+
+┌──────────────────────────────────────────────────────────────┐
+│                        WORKER NODE B                         │
+│                                                              │
+│  kubelet                                                    │
+│     │                                                       │
+│     ▼                                                       │
+│  containerd                                                 │
+│     │                                                       │
+│     ▼                                                       │
+│  Pod C                                                      │
+│  Pod D                                                      │
+│                                                              │
+│  kube-proxy                                                 │
+│     │                                                       │
+│     ▼                                                       │
+│  iptables / IPVS rules                                      │
+│                                                              │
+└──────────────────────────────────────────────────────────────┘
+```
+
+```
+-- OLD Terminology
+
+Master Node
+ ├── kube-apiserver
+ ├── etcd
+ ├── kube-scheduler
+ └── kube-controller-manager
+
+-- Modern terminology
+Control Plane Node
+ ├── kube-apiserver
+ ├── etcd
+ ├── kube-scheduler
+ └── kube-controller-manager
+
+-- Worker nodes remain the same.
+Worker Node
+ ├── kubelet
+ ├── containerd
+ ├── kube-proxy
+ └── Pods
+
 ```
 
 ---
