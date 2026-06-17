@@ -584,4 +584,68 @@ Processing batch...
 
 - Please review the lessons learned from other lesson_learned_pod-evicted.md file. 
 
+## After that lets submit and reset.
+
+```
+[root@rhel9-4gb ~]# kubeasy challenge submit pod-evicted
+
+# Submitting Challenge: pod-evicted
+
+ SUCCESS  Verifying challenge
+ SUCCESS  Checking progress
+ SUCCESS  Loading validations
+ INFO  Running validations...
+
+# Condition Validation
+
+ SUCCESS  pod-running-check: All checks passed
+  ✓ All checks passed
+
+# Event Validation
+
+ SUCCESS  no-oom-eviction: All checks passed
+  ✓ No forbidden events found
+
+# Status Validation
+
+ SUCCESS  low-restart-count: All checks passed
+  ✓ All status checks passed
+
+# Submission Result
+
+ SUCCESS  All validations passed!
+
+ SUCCESS  Congratulations! Challenge 'pod-evicted' completed!
+ INFO  You can clean up with 'kubeasy challenge clean pod-evicted'
+```
+
+- Remove resources AND reset your progress on the platform
+- Remove local resources only (keeps your progress)
+
+```bash
+[root@rhel9-4gb ~]# kubeasy challenge reset pod-evicted
+
+
+# Resetting Challenge: pod-evicted
+
+
+ SUCCESS  Deleting challenge resources (completed in 0s)
+ SUCCESS  Challenge resources deleted
+ SUCCESS  Resetting challenge progress on server
+
+ SUCCESS  Challenge 'pod-evicted' reset successfully!
+ INFO  You can start the challenge again with 'kubeasy challenge start pod-evicted'
+[root@rhel9-4gb ~]# kubeasy challenge clean pod-evicted
+
+
+# Cleaning Challenge: pod-evicted
+
+
+ SUCCESS  Deleting challenge resources (completed in 0s)
+ SUCCESS  Challenge resources deleted
+
+ SUCCESS  Challenge 'pod-evicted' cleaned successfully!
+ INFO  All resources have been removed from your cluster
+[root@rhel9-4gb ~]#
+```
 
