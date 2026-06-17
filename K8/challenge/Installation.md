@@ -62,6 +62,8 @@ sudo systemctl enable --now docker
 
 ```bash
 
+[root@rhel9-4gb ~]# kubeasy login
+
 [root@rhel9-4gb ~]# kubeasy setup
 ██   ██ ██    ██ ██████  ███████  █████  ███████ ██    ██
 ██  ██  ██    ██ ██   ██ ██      ██   ██ ██       ██  ██
@@ -91,60 +93,5 @@ sudo systemctl enable --now docker
  SUCCESS  Kubeasy environment is ready!
  INFO  You can now start challenges with 'kubeasy challenge start <slug>'
 [root@rhel9-4gb ~]#
-
-
-[root@rhel9-4gb ~]# kubeasy challenge get pod-evicted
-
-
-
-# Pod Evicted
-
-Difficulty: easy
-Theme: Resources & Scaling
-Slug: pod-evicted
-
-┌──────────────────────────── Description ────────────────────────────┐
-| A data processing pod keeps crashing and getting evicted.           |
-| It was working fine yesterday, but now Kubernetes keeps killing it. |
-|                                                                     |
-└─────────────────────────────────────────────────────────────────────┘
-
-
-# Initial Situation
-
-A data processing application is deployed as a single pod.
-The pod starts but keeps crashing after a few seconds.
-It enters a CrashLoopBackOff state and keeps restarting.
-The application code hasn't changed - it was working fine in the previous environment.
-
-
- INFO  Press Enter to continue...
-
-[root@rhel9-4gb ~]# kubeasy challenge start pod-evicted
-
-
-# Starting Challenge: pod-evicted
-
- SUCCESS  Fetching challenge details
- INFO  Challenge: Pod Evicted
- SUCCESS  Checking challenge progress
-
- SUCCESS  Creating namespace
- SUCCESS  Deploying challenge
- SUCCESS  Kubectl context configured
- SUCCESS  Registering challenge progress
-
- SUCCESS  Challenge environment is ready!
-Challenge: pod-evicted
-Namespace: pod-evicted
-Context: kind-kubeasy
-
- INFO  You can now start working on the challenge!
-[root@rhel9-4gb ~]#
-
-
-[root@rhel9-4gb ~]# kubectl get pods
-NAME                             READY   STATUS      RESTARTS        AGE
-data-processor-d66fc797f-zzbqg   0/1     OOMKilled   5 (2m14s ago)   4m4s
 
 ```
