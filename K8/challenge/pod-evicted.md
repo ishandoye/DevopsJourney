@@ -242,7 +242,7 @@ Loaded chunk 5/10 (~40MB in memory)
 
 ```
 
-- The Chunks area going till 5 but not till 10 as per python code.
+- The Chunks area going till 5 but not up to 10 as per the Python code.
 
 ```bash
 
@@ -250,13 +250,11 @@ Loaded chunk 5/10 (~40MB in memory)
           chunk = 'x' * (8 * 1024 * 1024)
           data.append(chunk)
           print(f'Loaded chunk {i+1}/10 (~{(i+1)*8}MB in memory)')
-
-
 ```
 
-- Now need to check for the Yaml.
+- Now need to check the YAML.
 
-``bash
+```bash
 
 [root@rhel9-4gb ~]# kubectl get pod
 NAME                             READY   STATUS             RESTARTS        AGE
@@ -291,14 +289,16 @@ Loaded chunk 5/10 (~40MB in memory)
 
 ```
 
-- Now lets looks at the pod yaml file
-	- At first I was using below command to get the pods yaml
+- Now let's look at the pod YAML file
+	- At first, I was using the command to get the pod YAML
 
 ```bash
+
 [root@rhel9-4gb ~]# kubectl get pods data-processor-d66fc797f-cn8sc -o yaml > data-processor-d66fc797f-cn8sc.yaml
+
 ```
 
-	- This was confusing to me as it was showing me more value of memory.
+- This was confusing to me as it was showing me more memory values.
 
 ```bash
 
@@ -314,7 +314,7 @@ Loaded chunk 5/10 (~40MB in memory)
 
 ```
 
-	- So Instead of POD, I tried using deployment
+- So instead of a POD, I tried using deployment
 
 ```bash
 
@@ -577,5 +577,11 @@ Processing batch...
 
 ```
 
+- I can use the command below as well to edit the changes if we have and urgancy to resolve it first and then make the permanent changes.
+```bash
+# kubectl edit data-processor-57bd988b5d-6v5bg
+```
+
+- Please review the lessons learned from other lesson_learned_pod-evicted.md file. 
 
 
