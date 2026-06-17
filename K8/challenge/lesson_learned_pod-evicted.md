@@ -297,134 +297,453 @@ Never assume success based only on a successful command execution.
 
 ---
 
-# Recommended Production Workflow
+# Recommended Production Workflow - OOMKilled / CrashLoopBackOff
 
-## Step 1 - Confirm Impact
+## Scenario
+
+Alert received:
 
 ```bash
 kubectl get pods -n pod-evicted
 ```
 
-## Step 2 - Investigate
+Output:
 
-```bash
-kubectl describe pod <pod-name>
+```text
+NAME                             READY   STATUS             RESTARTS
+data-processor-d66fc797f-cn8sc   0/1     CrashLoopBackOff   8
 ```
 
-## Step 3 - Review Logs
+---
+
+# Step 1 - Verify Current Pod State
+
+Command:
 
 ```bash
-kubectl logs <pod-name> --previous
+kubectl get pods -n pod-evicted -o wide
 ```
 
-## Step 4 - Determine Root Cause
+Purpose:
 
-Examples:
+* Confirm affected pod
+* Confirm node placement
+* Confirm restart count
 
-- OOMKilled
-- Probe Failure
-- FailedMount
-- ImagePullBackOff
-- Application Crash
+Expected Output:
 
-## Step 5 - Identify Owning Controller
+```text
+STATUS = CrashLoopBackOff
+RESTARTS > 0
+```
+
+If restart count continuously increases:
+
+Proceed to Step 2.
+
+---
+
+# Step 2 - Check Kubernetes Events
+
+Command:
 
 ```bash
-kubectl get pod <pod-name> -o yaml
+kubectl describe pod data-processor-d66fc797f-cn8sc -n pod-evicted
+```
+
+Purpose:
+
+Review:
+
+* Events
+* Exit reason
+* Scheduling issues
+* Probe failures
+* Mount failures
+
+Look for:
+
+```text
+OOMKilled
+```
+
+or
+
+```text
+Back-off restarting failed container
+```
+
+If OOMKilled found:
+
+Proceed to Step 3.
+
+---
+
+# Step 3 - Inspect Previous Container Logs
+
+Command:
+
+```bash
+kubectl logs data-processor-d66fc797f-cn8sc \
+-n pod-evicted \
+--previous
+```
+
+Purpose:
+
+View logs from crashed container.
+
+Questions:
+
+* Did application throw exception?
+* Did process terminate itself?
+* Did logs stop abruptly?
+
+For OOM events logs often stop suddenly.
+
+---
+
+# Step 4 - Retrieve Complete Pod Configuration
+
+Command:
+
+```bash
+kubectl get pod data-processor-d66fc797f-cn8sc \
+-n pod-evicted \
+-o yaml
+```
+
+Purpose:
+
+Verify:
+
+```yaml
+resources:
+  requests:
+  limits:
+```
+
+Check:
+
+```yaml
+resources:
+  limits:
+    memory: 50Mi
+```
+
+Record configured limit.
+
+---
+
+# Step 5 - Identify Owning Controller
+
+Command:
+
+```bash
+kubectl get pod data-processor-d66fc797f-cn8sc -o yaml -n pod-evicted | grep -A10 ownerReferences
+```
+
+Expected:
+
+```yaml
+ownerReferences:
+- kind: ReplicaSet
+  name: data-processor-d66fc797f
+```
+
+Then:
+
+```bash
+kubectl get rs -n pod-evicted
+```
+
+Find owning ReplicaSet.
+
+Then:
+
+```bash
+kubectl describe rs data-processor-d66fc797f -n pod-evicted
+```
+
+Identify Deployment.
+
+Expected:
+
+```text
+Controlled By:
+Deployment/data-processor
+```
+
+---
+
+# Step 6 - Verify Deployment Resources
+
+Command:
+
+```bash
+kubectl get deployment data-processor -n pod-evicted -o yaml
 ```
 
 Review:
 
 ```yaml
-ownerReferences:
+spec:
+  template:
+    spec:
+      containers:
+      - resources:
 ```
 
-## Step 6 - Fix Controller
+Confirm:
 
-Modify:
+```yaml
+limits:
+  memory: 50Mi
+```
 
-- Deployment
-- StatefulSet
-- DaemonSet
+---
 
-Do not modify Pods.
+# Step 7 - Emergency Production Fix
 
-## Step 7 - Validate Rollout
+Preferred:
 
 ```bash
-kubectl rollout status deployment/<deployment>
+kubectl set resources deployment data-processor \
+-n pod-evicted \
+--limits=cpu=200m,memory=256Mi \
+--requests=cpu=100m,memory=128Mi
 ```
 
-## Step 8 - Verify Recovery
+Purpose:
 
-```bash
-kubectl get pods
-kubectl logs
-kubectl describe
-```
+Update Deployment template.
 
-## Step 9 - Update Source Of Truth
-
-After emergency production changes update:
-
-- Git Repository
-- Helm Charts
-- Kustomize
-- Terraform
-- GitOps Repository
-
-This prevents future deployments from reverting the fix.
-
----
-
-# What To Avoid In Production
-
-❌ Editing Pods directly
-
-❌ Repeatedly deleting Pods without investigation
-
-❌ Increasing limits without understanding usage
-
-❌ Applying stale exported YAML
-
-❌ Skipping rollout validation
-
-❌ Forgetting to update Git/source control
-
-❌ Treating CrashLoopBackOff as root cause
-
----
-
-# Production Best Practices
-
-✅ Investigate before changing
-
-✅ Confirm actual exit reason
-
-✅ Fix Deployment instead of Pod
-
-✅ Use controlled rollouts
-
-✅ Validate post-change behavior
-
-✅ Update source-controlled configuration
-
-✅ Document lessons learned
-
-✅ Review resource sizing after incident closure
-
----
-
-# Final Takeaway
+Kubernetes automatically:
 
 ```text
-CrashLoopBackOff = Symptom
+Creates new ReplicaSet
+Creates new Pod
+Terminates old Pod
+```
 
-OOMKilled = Root Cause
+---
 
-Deployment = Correct place to fix
+# Step 8 - Verify Rollout
 
-Production Workflow:
-Investigate → Identify Root Cause → Fix Controller → Validate Rollout → Update Source Of Truth
+Command:
+
+```bash
+kubectl rollout status deployment/data-processor -n pod-evicted
+```
+
+Expected:
+
+```text
+deployment "data-processor" successfully rolled out
+```
+
+If rollout hangs:
+
+Investigate new pod.
+
+---
+
+# Step 9 - Monitor New Pods
+
+Command:
+
+```bash
+kubectl get pods -n pod-evicted -w
+```
+
+Expected:
+
+```text
+Running
+1/1 Ready
+```
+
+Not:
+
+```text
+CrashLoopBackOff
+```
+
+---
+
+# Step 10 - Verify New Resource Values
+
+Command:
+
+```bash
+kubectl describe pod <new-pod-name> -n pod-evicted
+```
+
+Verify:
+
+```text
+Limits:
+  memory: 256Mi
+```
+
+Confirm change propagated.
+
+---
+
+# Step 11 - Verify Application Logs
+
+Command:
+
+```bash
+kubectl logs <new-pod-name> -n pod-evicted
+```
+
+Verify:
+
+```text
+Application starts successfully
+No OOM events
+No exceptions
+```
+
+---
+
+# Step 12 - Verify Deployment Health
+
+Command:
+
+```bash
+kubectl get deployment data-processor -n pod-evicted
+```
+
+Expected:
+
+```text
+READY 1/1
+AVAILABLE 1
+```
+
+---
+
+# Step 13 - Verify Cluster Events
+
+Command:
+
+```bash
+kubectl get events -n pod-evicted --sort-by=.lastTimestamp
+```
+
+Verify:
+
+* No new OOMKilled events
+* No scheduling failures
+* No probe failures
+
+---
+
+# Step 14 - Document Production Change
+
+Record:
+
+* Incident Time
+* Root Cause
+* Memory Before: 50Mi
+* Memory After: 256Mi
+* Validation Commands
+* Recovery Time
+
+---
+
+# Step 15 - Update Source Of Truth
+
+Update:
+
+```text
+Git Repository
+Terraform
+
+```
+
+Reason:
+
+Future deployments must retain the fix.
+
+---
+
+# Optional Capacity Verification
+
+Check actual usage:
+
+```bash
+kubectl top pod -n pod-evicted
+```
+
+or
+
+```bash
+kubectl top pod <pod-name> -n pod-evicted
+```
+
+Purpose:
+
+Determine:
+
+```text
+Actual Usage
+Configured Request
+Configured Limit
+```
+
+Use this data for future sizing.
+
+---
+
+# Rollback Procedure
+
+If application becomes unstable after change:
+
+View revisions:
+
+```bash
+kubectl rollout history deployment/data-processor -n pod-evicted
+```
+
+Rollback:
+
+```bash
+kubectl rollout undo deployment/data-processor -n pod-evicted
+```
+
+Verify:
+
+```bash
+kubectl rollout status deployment/data-processor -n pod-evicted
+```
+
+---
+
+# Final Decision Flow
+```
+CrashLoopBackOff
+↓
+Describe Pod
+↓
+Identify Exit Reason
+↓
+OOMKilled?
+↓
+YES
+↓
+Verify Limits
+↓
+Modify Deployment
+↓
+Validate Rollout
+↓
+Verify Logs
+↓
+Update Git
+↓
+Close Incident
 ```
 
