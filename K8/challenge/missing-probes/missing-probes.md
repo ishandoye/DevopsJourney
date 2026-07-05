@@ -135,9 +135,11 @@ deployment.apps/webapp edited
 2026-07-05T16:39:11.062Z GET /ready
 [root@rhel9-4gb ~]#
 [root@rhel9-4gb ~]#
+
+```
+
+```
 [root@rhel9-4gb ~]# kubeasy challenge submit missing-probes
-
-
 # Submitting Challenge: missing-probes
 
  SUCCESS  Verifying challenge
