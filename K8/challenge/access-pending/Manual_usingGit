@@ -1,0 +1,181 @@
+** As the site is down, I had to run it on my local machine using the git repo below are the errors that I encountered and solved
+
+```
+[root@rhel9-4gb access-pending]# kubectl apply -f manifests/
+namespace/access-pending unchanged
+rolebinding.rbac.authorization.k8s.io/startup-check-binding created
+role.rbac.authorization.k8s.io/startup-check-role created
+serviceaccount/startup-checker created
+Error from server: error when creating "manifests/deployment.yaml": admission webhook "validate.kyverno.svc-fail" denied the request:
+
+resource Deployment/access-pending/startup-app was blocked due to the following policies
+
+restrict-modifications-access-pending:
+  only-allowed-image: 'validation error: Only the official access-pending image is
+    allowed. rule only-allowed-image failed at path /spec/template/spec/containers/0/image/'
+```
+
+## Checked the image used.
+
+```
+[root@rhel9-4gb access-pending]# grep -n "image:" manifests/deployment.yaml
+20:          image: ghcr.io/kubeasy-dev/access-pending:latest
+```
+## I first tried to change it to image: kubeasy/startup-check:v1 but found out the above one is correct as reading through git.
+```
+[root@rhel9-4gb access-pending]# grep -R "image:" -n manifests policies
+manifests/deployment.yaml:20:          image: kubeasy/startup-check:v1
+policies/restrict-modifications.yaml:39:                    image: "kubeasy/startup-check:v1"
+
+[root@rhel9-4gb access-pending]# sed -i 's|^\([[:space:]]*image:\).*|\1 ghcr.io/kubeasy-dev/access-pending:latest|' manifests/deployment.yaml
+[root@rhel9-4gb access-pending]# sed -i 's|^\([[:space:]]*image:\).*|\1 ghcr.io/kubeasy-dev/access-pending:latest|' policies/restrict-modifications.yaml
+```
+
+## Thus tried to fix the local Kyverno policy to allow that image
+
+```
+[root@rhel9-4gb access-pending]# kubectl get policy -A | grep restrict-modifications
+access-pending        restrict-modifications          true        true         True    156m   Ready
+
+
+[root@rhel9-4gb access-pending]# kubectl get policy -A -o yaml | grep -n -A8 -B8 "only-allowed-image"
+1-apiVersion: v1
+2-items:
+3-- apiVersion: kyverno.io/v1
+4-  kind: Policy
+5-  metadata:
+6-    annotations:
+7-      argocd.argoproj.io/sync-wave: "2"
+8-      kubectl.kubernetes.io/last-applied-configuration: |
+9:        {"apiVersion":"kyverno.io/v1","kind":"Policy","metadata":{"annotations":{"argocd.argoproj.io/sync-wave":"2"},"name":"restrict-modifications","namespace":"access-pending"},"spec":{"background":true,"rules":[{"match":{"resources":{"kinds":["Deployment"]}},"name":"must-have-startup-probe","validate":{"message":"Containers must have a startupProbe on /startupz","pattern":{"spec":{"template":{"spec":{"containers":[{"name":"*","startupProbe":{"httpGet":{"path":"/startupz"}}}]}}}}}},{"match":{"resources":{"kinds":["Deployment"]}},"name":"only-allowed-image","validate":{"message":"Only kubeasy/startup-check:v1 is allowed","pattern":{"spec":{"template":{"spec":{"containers":[{"image":"kubeasy/startup-check:v1","name":"*"}]}}}}}}],"validationFailureAction":"enforce"}}
+10-    creationTimestamp: "2026-07-15T06:02:13Z"
+11-    generation: 1
+12-    name: restrict-modifications
+13-    namespace: access-pending
+14-    resourceVersion: "10138109"
+15-    uid: dfcd90e1-a0bf-442d-9355-97d44a550fc5
+16-  spec:
+17-    admission: true
+--
+35-                - name: '*'
+36-                  startupProbe:
+37-                    httpGet:
+38-                      path: /startupz
+39-    - match:
+40-        resources:
+41-          kinds:
+42-          - Deployment
+43:      name: only-allowed-image
+44-      skipBackgroundRequests: true
+45-      validate:
+46-        allowExistingViolations: true
+47-        message: Only kubeasy/startup-check:v1 is allowed
+48-        pattern:
+49-          spec:
+50-            template:
+51-              spec:
+--
+119-      generated: false
+120-      message: ""
+121-- apiVersion: kyverno.io/v1
+122-  kind: Policy
+123-  metadata:
+124-    annotations:
+125-      argocd.argoproj.io/sync-wave: "2"
+126-      kubectl.kubernetes.io/last-applied-configuration: |
+127:        {"apiVersion":"kyverno.io/v1","kind":"Policy","metadata":{"annotations":{"argocd.argoproj.io/sync-wave":"2"},"name":"restrict-modifications","namespace":"expose-internally"},"spec":{"background":true,"rules":[{"match":{"resources":{"kinds":["Deployment"]}},"name":"must-have-startup-probe","validate":{"message":"Containers must have a startupProbe on /startupz","pattern":{"spec":{"template":{"spec":{"containers":[{"name":"*","startupProbe":{"httpGet":{"path":"/startupz"}}}]}}}}}},{"match":{"resources":{"kinds":["Deployment"]}},"name":"only-allowed-image","validate":{"message":"Only kubeasy/startup-check:v1 is allowed","pattern":{"spec":{"template":{"spec":{"containers":[{"image":"kubeasy/startup-check:v1","name":"*"}]}}}}}}],"validationFailureAction":"enforce"}}
+128-    creationTimestamp: "2026-07-13T11:08:53Z"
+129-    generation: 1
+130-    name: restrict-modifications
+131-    namespace: expose-internally
+132-    resourceVersion: "9571597"
+133-    uid: 9ac15bfe-99ff-43bf-8b9e-f37587f322bc
+134-  spec:
+135-    admission: true
+--
+153-                - name: '*'
+154-                  startupProbe:
+155-                    httpGet:
+156-                      path: /startupz
+157-    - match:
+158-        resources:
+159-          kinds:
+160-          - Deployment
+161:      name: only-allowed-image
+162-      skipBackgroundRequests: true
+163-      validate:
+164-        allowExistingViolations: true
+165-        message: Only kubeasy/startup-check:v1 is allowed
+166-        pattern:
+167-          spec:
+168-            template:
+169-              spec:
+[root@rhel9-4gb access-pending]# kubectl get cpol -o yaml | grep -n -A8 -B8 "only-allowed-image"
+96-    emitWarning: false
+97-    rules:
+98-    - match:
+99-        resources:
+100-          kinds:
+101-          - Deployment
+102-          namespaces:
+103-          - access-pending
+104:      name: only-allowed-image
+105-      skipBackgroundRequests: true
+106-      validate:
+107-        allowExistingViolations: true
+108-        message: Only the official access-pending image is allowed
+109-        pattern:
+110-          spec:
+111-            template:
+112-              spec:
+
+```
+
+## check the extra Kyverno policy in your cluster
+
+```
+[root@rhel9-4gb access-pending]# kubectl get policy -A
+NAMESPACE             NAME                            ADMISSION   BACKGROUND   READY   AGE    MESSAGE
+access-pending        restrict-modifications          true        true         True    158m   Ready
+expose-internally     protect-webapp-labels           true        true         True    9d     Ready
+expose-internally     restrict-modifications          true        true         True    45h    Ready
+job-failed            restrict-job-modifications      true        true         True    12d    Ready
+missing-credentials   restrict-secret-modifications   true        true         True    11d    Ready
+missing-probes        protect-missing-probes          true        true         True    9d     Ready
+
+```
+
+## The restrict-modifications-access-pending also has an old/wrong image,
+
+```
+# kubectl edit policy restrict-modifications-access-pending -n access-pending
+# kubectl edit cpol restrict-modifications-access-pending
+```
+
+## Inside the editor, find the image under the only-allowed-image rule and make it:
+
+```
+image: "ghcr.io/kubeasy-dev/access-pending:latest"
+```
+
+## Apply in a sequence Which was missing before.
+
+```
+[root@rhel9-4gb access-pending]# kubectl apply -f manifests/namespace.yaml
+kubectl apply -n access-pending -f policies/restrict-modifications.yaml
+kubectl apply -n access-pending -f manifests/service-account.yaml
+kubectl apply -n access-pending -f manifests/role.yaml
+kubectl apply -n access-pending -f manifests/role-binding.yaml
+kubectl apply -n access-pending -f manifests/deployment.yaml
+namespace/access-pending unchanged
+Warning: Validation failure actions enforce/audit are deprecated, use Enforce/Audit instead.
+policy.kyverno.io/restrict-modifications configured
+serviceaccount/startup-checker unchanged
+role.rbac.authorization.k8s.io/startup-check-role unchanged
+rolebinding.rbac.authorization.k8s.io/startup-check-binding unchanged
+deployment.apps/startup-app created
+
+[root@rhel9-4gb access-pending]# kubectl get pods
+NAME                           READY   STATUS    RESTARTS   AGE
+startup-app-5994655bc5-qh296   0/1     Running   0          16s
+```
