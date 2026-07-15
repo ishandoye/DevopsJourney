@@ -95,3 +95,12 @@ sudo systemctl enable --now docker
 [root@rhel9-4gb ~]#
 
 ```
+
+# SOME EXTRA COMMAND
+To change your default namespace.
+
+```
+kubectl config set-context --current --namespace=access-pending
+cat ~/.kube/config
+kubectl config view --minify
+```
