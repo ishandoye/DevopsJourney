@@ -158,7 +158,7 @@ missing-probes        protect-missing-probes          true        true         T
 image: "ghcr.io/kubeasy-dev/access-pending:latest"
 ```
 
-## Apply in a sequence Which was missing before.
+## Apply in a sequence that was missing before.
 
 ```
 [root@rhel9-4gb access-pending]# kubectl apply -f manifests/namespace.yaml
@@ -178,4 +178,82 @@ deployment.apps/startup-app created
 [root@rhel9-4gb access-pending]# kubectl get pods
 NAME                           READY   STATUS    RESTARTS   AGE
 startup-app-5994655bc5-qh296   0/1     Running   0          16s
+```
+
+## Verification Script
+
+```
+[root@rhel9-4gb ~]# cat submit.sh
+#!/usr/bin/env bash
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+NAMESPACE="${NAMESPACE:-access-pending}"
+SA_NAME="${SA_NAME:-startup-checker}"
+APP_LABEL="${APP_LABEL:-app=startup-app}"
+CONTAINER_NAME="${CONTAINER_NAME:-startup-app}"
+TIMEOUT="${TIMEOUT:-120s}"
+
+require_cmd() {
+  command -v "$1" >/dev/null 2>&1 || {
+    echo "error: required command '$1' not found in PATH" >&2
+    exit 1
+  }
+}
+
+require_cmd kubectl
+
+echo "==> Checking pod exists"
+pod_name="$(kubectl get pod -n "${NAMESPACE}" -l "${APP_LABEL}" -o jsonpath='{.items[0].metadata.name}' 2>/dev/null || true)"
+if [[ -z "${pod_name}" ]]; then
+  echo "error: no pod found with label ${APP_LABEL} in namespace ${NAMESPACE}" >&2
+  exit 1
+fi
+
+echo "Found pod: ${pod_name}"
+
+echo "==> Checking RBAC access"
+can_i="$(kubectl auth can-i list pods -n "${NAMESPACE}" --as="system:serviceaccount:${NAMESPACE}:${SA_NAME}" 2>/dev/null || true)"
+echo "kubectl auth can-i list pods ... => ${can_i}"
+if [[ "${can_i}" != "yes" ]]; then
+  echo "error: service account still cannot list pods" >&2
+  exit 1
+fi
+
+echo "==> Waiting for pod readiness"
+if ! kubectl wait -n "${NAMESPACE}" --for=condition=Ready pod -l "${APP_LABEL}" --timeout="${TIMEOUT}"; then
+  echo "error: pod did not become Ready within ${TIMEOUT}" >&2
+  echo "==> Pod description"
+  kubectl describe pod -n "${NAMESPACE}" "${pod_name}" || true
+  echo "==> Recent logs"
+  kubectl logs -n "${NAMESPACE}" "${pod_name}" -c "${CONTAINER_NAME}" --tail=80 || true
+  exit 1
+fi
+
+echo "==> Checking logs for success message"
+if ! kubectl logs -n "${NAMESPACE}" -l "${APP_LABEL}" -c "${CONTAINER_NAME}" | grep -qi 'Access OK'; then
+  echo "error: expected log line 'Access OK' not found" >&2
+  kubectl logs -n "${NAMESPACE}" -l "${APP_LABEL}" -c "${CONTAINER_NAME}" || true
+  exit 1
+fi
+
+echo "==> Challenge validated successfully"
+kubectl get pods -n "${NAMESPACE}" -l "${APP_LABEL}" -o wide
+```
+
+## Run the submit 
+
+```
+[root@rhel9-4gb ~]# bash submit.sh
+==> Checking pod exists
+Found pod: startup-app-5994655bc5-qh296
+==> Checking RBAC access
+kubectl auth can-i list pods ... => yes
+==> Waiting for pod readiness
+pod/startup-app-5994655bc5-qh296 condition met
+==> Checking logs for success message
+==> Challenge validated successfully
+NAME                           READY   STATUS    RESTARTS        AGE   IP            NODE                    NOMINATED NODE   READINESS GATES
+startup-app-5994655bc5-qh296   1/1     Running   436 (85m ago)   21h   10.244.0.57   kubeasy-control-plane   <none>           <none>
+
 ```
