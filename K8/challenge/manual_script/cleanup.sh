@@ -30,5 +30,5 @@ fi
 
 echo "==> Deleting namespace"
 kubectl delete namespace "${NAMESPACE}" --ignore-not-found=true || true
-
+kubectl config set-context --current --namespace=default
 echo "==> Cleanup complete"
