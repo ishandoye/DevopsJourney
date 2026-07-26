@@ -74,7 +74,7 @@ openstack-flex-terraform/
 │   ├── project-structure.md
 │   └── troubleshooting.md
 │
-├── examples/
+├── Project/
 │   ├── 01-provider-authentication/
 │   ├── 02-read-existing-resources/
 │   ├── 03-create-network/
@@ -94,4 +94,13 @@ openstack-flex-terraform/
 │   └── volume/
 │
 └── scripts/
+```
+
+## NOTE 
+
+- These are executed before running terrafrom init thus some files will not be listed so must run init and plan.
+
+```
+.terraform/
+.terraform.lock.hcl
 ```
