@@ -9,6 +9,7 @@ This repository is intended to provide a structured learning path and reusable c
 The repository starts with read-only examples that safely query existing infrastructure and gradually progresses to provisioning and lifecycle management of OpenStack resources.
 
 ## Learning Path
+--> https://registry.terraform.io/providers/terraform-provider-openstack/openstack/latest/docs
 
 | Step | Description                       |
 | ---- | --------------------------------- |
