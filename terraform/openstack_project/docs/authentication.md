@@ -1,0 +1,6 @@
+- Terraform uses the OpenStack provider. 
+	- https://registry.terraform.io/providers/terraform-provider-openstack/openstack/latest/docs
+- The provider points to a named cloud entry.
+	- https://docs.rackspacecloud.com/openstack-clouds/#configure-openstack-client-by-hand
+- Credentials remain outside the repository.
+- A successful terraform plan against a data source confirms authentication.

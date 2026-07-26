@@ -75,17 +75,15 @@ openstack-flex-terraform/
 │   └── troubleshooting.md
 │
 ├── Project/
-│   ├── 01-provider-authentication/
-│   ├── 02-read-existing-resources/
-│   ├── 03-create-network/
-│   ├── 04-create-security-group/
-│   ├── 05-create-router/
-│   ├── 06-create-instance/
-│   ├── 07-create-volume/
-│   ├── 08-attach-volume/
-│   ├── 09-floating-ip/
-│   ├── 10-import-existing-resources/
-│   └── 11-destroy-resources/
+│   ├── 01-read-existing-resources/
+│   ├── 02-create-network/
+│   ├── 03-create-security-group/
+│   ├── 04-create-router/
+│   ├── 05-create-instance/
+│   ├── 06-create-volume/
+│   ├── 07-attach-volume/
+│   ├── 08-floating-ip/
+│   ├── 09-import-existing-resources/
 │
 ├── modules/
 │   ├── network/
