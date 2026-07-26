@@ -1,4 +1,4 @@
-# 1] Initialize
+## 1] Initialize
 
 ```
 
@@ -30,7 +30,7 @@ commands will detect it and remind you to do so if necessary.
 
 ```
 
-# 2] Plan
+## 2] Plan
 
 ```
 [root@node aws_project]# terraform plan
@@ -100,7 +100,7 @@ Note: You didn't use the -out option to save this plan, so Terraform can't guara
 
 ```
 
-# 3] Apply
+## 3] Apply
 
 ```
 
@@ -184,7 +184,7 @@ bucket_name = "example-bucket-4eaf3e182226"
 
 ```
 
-# 4] Destroy
+## 4] Destroy
 
 ```
 
